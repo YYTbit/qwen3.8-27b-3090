@@ -1,0 +1,97 @@
+{
+  "vllm_version": "0.30.0+cu129",
+  "wheel_sha256": "e98cb69659bfcfc849cf11ce0781a7161d40b02b51a6c3636924a5909f2aabcc",
+  "patch_order": [
+    {
+      "name": "speed-knobs-envs.patch",
+      "sha256": "512db4210d9d5442998e5091fe8b2f875ca88f72fa9ae6ed0d0c481702d31b72",
+      "upstream": "https://github.com/syv-ai/HyperQwen",
+      "application": {
+        "strip": 1,
+        "directory": "vllm",
+        "fuzz": 0
+      }
+    },
+    {
+      "name": "int4-kv-per-token-head.patch",
+      "sha256": "5ee3796cc2894b53ef775a7a29e01e6b44225d8490e997224167afc299f93eba",
+      "upstream": "https://github.com/syv-ai/HyperQwen",
+      "application": {
+        "strip": 1,
+        "directory": "vllm",
+        "fuzz": 0
+      }
+    },
+    {
+      "name": "spec-decode-int4-kv-mq3d.patch",
+      "sha256": "065aca5971fdf2dda6e26151b6c4c2b7380bdf4d734d4d9817f323327b8e9262",
+      "upstream": "https://github.com/syv-ai/HyperQwen",
+      "application": {
+        "strip": 1,
+        "directory": "vllm",
+        "fuzz": 0
+      }
+    },
+    {
+      "name": "spec-decode-scratch-token-units.patch",
+      "sha256": "072fa6920d4e9164ce2f5a3d3056627c001745de779b2e0b1abb958b6e7e2791",
+      "upstream": "https://github.com/syv-ai/HyperQwen",
+      "application": {
+        "strip": 1,
+        "directory": "vllm",
+        "fuzz": 0
+      }
+    },
+    {
+      "name": "spec-decode-scratch-within-budget.patch",
+      "sha256": "a1cde578c96a6d93e43c1e64b52b69f97c322c8c881d3a35df33dfbaa09f56ec",
+      "upstream": "https://github.com/syv-ai/HyperQwen",
+      "application": {
+        "strip": 1,
+        "directory": "vllm",
+        "fuzz": 0
+      }
+    },
+    {
+      "name": "qwen3_5-embed-quant.patch",
+      "sha256": "9cd6bfb9be3aaf680162730465d704de00fdcd229f863225cf01d1981324dfb9",
+      "upstream": "https://github.com/syv-ai/HyperQwen",
+      "application": {
+        "strip": 1,
+        "directory": "vllm",
+        "fuzz": 0
+      }
+    },
+    {
+      "name": "vllm-pr50021-gdn-spec-bounds.patch",
+      "sha256": "c0d7b8ee26efa4032e04374d5494e7dac973f3ed30a568599614925619f56ef3",
+      "upstream": "https://github.com/syv-ai/HyperQwen",
+      "application": {
+        "strip": 1,
+        "directory": "vllm",
+        "fuzz": 0
+      }
+    },
+    {
+      "name": "sampler-small-topk-fast-softmax.patch",
+      "sha256": "29cd39d7ca8180e7cbded3b73ea4097e7fbcef606c5da80f1be896525f0ad1b9",
+      "upstream": "https://github.com/syv-ai/HyperQwen",
+      "application": {
+        "strip": 1,
+        "directory": "vllm",
+        "fuzz": 0
+      }
+    },
+    {
+      "name": "dflash2-lookup-drafting.patch",
+      "sha256": "7156d2d16509dff39490f40f2e70d7bd5023482c4cc057c316bc681e2ed71190",
+      "upstream": "https://github.com/syv-ai/HyperQwen",
+      "application": {
+        "strip": 1,
+        "directory": "vllm",
+        "fuzz": 0
+      }
+    }
+  ],
+  "handwritten_kernel_changes": false
+}

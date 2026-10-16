@@ -1,0 +1,13 @@
+{
+  "namespace": "UNIQUE_MODEL_RUNTIME_TP2_NAMESPACE",
+  "root": "CACHE_ROOT",
+  "capacity_gb": 256,
+  "port": 47865,
+  "http_port": 47866,
+  "l1_size_gb": 8,
+  "chunk_size": 1792,
+  "key_file": "API_KEY_FILE",
+  "log": "CACHE_LOG",
+  "retention_ttl_seconds": 0,
+  "connector": "official"
+}

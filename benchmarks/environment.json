@@ -1,0 +1,38 @@
+{
+  "python": "3.13.12",
+  "kernel": "5.4.0-218-generic",
+  "glibc": [
+    "glibc",
+    "2.35"
+  ],
+  "effective_vllm_runtime": "0.30.0+cu129 plus the nine patches in patches.json",
+  "distribution_metadata": {
+    "lmcache": "0.0.0+qwen.local20261015",
+    "vllm": "0.28.0+cu129",
+    "flashinfer-python": "0.6.18",
+    "compressed-tensors": "0.18.0",
+    "anthropic": "1.11.0",
+    "triton": "3.7.1",
+    "numpy": "2.4.6",
+    "safetensors": "0.8.0",
+    "nvidia-cuda-cupti-cu12": "12.9.79",
+    "xgrammar": "0.2.1",
+    "nvidia-cuda-runtime-cu12": "12.9.79",
+    "transformers": "5.12.1",
+    "nvidia-ml-py": "13.615.71",
+    "torch": "2.13.0+cu129",
+    "huggingface_hub": "1.33.0",
+    "nvidia-nccl-cu12": "2.29.7"
+  },
+  "notes": [
+    "The reused base environment has vLLM distribution metadata 0.28; PYTHONPATH selects the complete verified 0.30 runtime, including its native libraries.",
+    "This captures the working environment; it is not a tested fresh installation requirements file.",
+    "LMCache is built from an unmodified upstream source archive; the local build tag is not an upstream release number."
+  ],
+  "lmcache_source": {
+    "upstream": "https://github.com/LMCache/LMCache",
+    "download_url": "https://ghfast.top/https://github.com/LMCache/LMCache/archive/refs/heads/dev.tar.gz",
+    "archive_sha256": "b026def84282947124f4997a7f640b9f7682411182dc5ea83485e663a7e37d9f",
+    "bytes": 9441835
+  }
+}

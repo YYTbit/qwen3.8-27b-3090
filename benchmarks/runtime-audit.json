@@ -1,0 +1,12 @@
+{
+  "python_sources_compared": 2683,
+  "python_sources_identical": true,
+  "native_libraries_compared": 18,
+  "native_libraries_identical": true,
+  "different_native_libraries": [],
+  "wheel_sha256": "e98cb69659bfcfc849cf11ce0781a7161d40b02b51a6c3636924a5909f2aabcc",
+  "patch_count": 9,
+  "fuzz": 0,
+  "fresh_environment_install_verified": false,
+  "new_runtime_gpu_launch_verified": false
+}

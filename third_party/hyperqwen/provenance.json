@@ -1,0 +1,31 @@
+{
+  "repository": "https://github.com/syv-ai/HyperQwen",
+  "commit": "d1ba27f495a0213f8582bdb298ebbe96e2c97234",
+  "unmodified": true,
+  "files": [
+    {
+      "path": "third_party/hyperqwen/prepare/quant_heads_stream.py",
+      "url": "https://github.com/syv-ai/HyperQwen/blob/d1ba27f495a0213f8582bdb298ebbe96e2c97234/prepare/quant_heads_stream.py",
+      "sha256": "45fbf518f480deace13ed16a938ce5c1f3bab63e7665366c511c838f39b86772",
+      "github_blob_sha": "7a7e9359827baeaf88f3eb074007b4de5383de77"
+    },
+    {
+      "path": "third_party/hyperqwen/prepare/quant_schema.py",
+      "url": "https://github.com/syv-ai/HyperQwen/blob/d1ba27f495a0213f8582bdb298ebbe96e2c97234/prepare/quant_schema.py",
+      "sha256": "d961ff71bea5d29cb45dd7929ec5754169ae8f73b9ed335f960843b0fec01874",
+      "github_blob_sha": "1d16ff26ad4664e8d9c4c48eb601da037e22b85e"
+    },
+    {
+      "path": "third_party/hyperqwen/prepare/atomic_publish.py",
+      "url": "https://github.com/syv-ai/HyperQwen/blob/d1ba27f495a0213f8582bdb298ebbe96e2c97234/prepare/atomic_publish.py",
+      "sha256": "82ca1ef91efa8121e94a35b0ea2633b9202ca3dec972f673de0beb4cbef15ae9",
+      "github_blob_sha": "126ce6d3ceff876bbf10cc34c4895db8605df207"
+    },
+    {
+      "path": "third_party/hyperqwen/LICENSE",
+      "url": "https://github.com/syv-ai/HyperQwen/blob/d1ba27f495a0213f8582bdb298ebbe96e2c97234/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "github_blob_sha": "d645695673349e3947e8e5ae42332d0ac3164cd7"
+    }
+  ]
+}

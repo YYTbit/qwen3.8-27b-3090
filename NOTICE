@@ -1,0 +1,12 @@
+Qwen3.8-27B RTX 3090 deployment recipe
+Copyright 2026 YYTbit
+
+This repository packages a deployment recipe and measurements. The inference
+algorithms and kernels come from vLLM, HyperQwen, DFlash, and their contributors.
+
+HyperQwen patches and preparation scripts are redistributed under Apache-2.0.
+Their original source and comments are preserved. See THIRD_PARTY.md and
+third_party/hyperqwen/provenance.json for attribution and pinned sources.
+
+No model weights, Claude Code binaries, private conversations, or credentials
+are distributed in this repository. Checkpoint licenses apply separately.

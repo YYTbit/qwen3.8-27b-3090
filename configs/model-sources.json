@@ -1,0 +1,30 @@
+{
+  "base_target": {
+    "repo": "twolven/Qwen3.8-27B-abliterated-AWQ-MTP",
+    "revision": "c2f5341e7c9a1c55e6d61cfc8e6d0ca897bd7443",
+    "verified": true
+  },
+  "measured_target": {
+    "variant": "Local AWQ4 target with INT8 embedding and lm_head",
+    "public_model_preparation_complete": true,
+    "reproduction_scope": "All non-MTP target tensors match the measured checkpoint; three unused auxiliary MTP draft-head tensors are omitted. See preparation-audit.json."
+  },
+  "draft": {
+    "repo": "syvai/Qwen3.8-27B-DFlash2-W4A16",
+    "revision": "4d30ec736ffc6b8688dc2ae2b502d9b48bdec279",
+    "verified": true
+  },
+  "configs": {
+    "target": {
+      "config_sha256": "f9c930cd5c0adb0fc9d0b00cacc3daf01d73326a61229ecdfe862c3db851a2e4",
+      "public_copy_removes_name_or_path": true
+    },
+    "draft": {
+      "config_sha256": "61d6276fe8d76295232cb02d26cbb0d29c25565911f50441e779c88c9220c556",
+      "public_copy_removes_name_or_path": true
+    }
+  },
+  "weights_included": false,
+  "mirror_preference": "https://hf-mirror.com",
+  "original_checkpoints_require_their_own_licenses": true
+}

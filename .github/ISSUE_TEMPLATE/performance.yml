@@ -1,0 +1,21 @@
+name: Performance report
+description: Share a result or diagnose a performance difference
+body:
+  - type: textarea
+    attributes:
+      label: Hardware and software
+      description: GPU count, topology, peer access, driver, CUDA runtime, recipe commit, dependency versions
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Workload and measurements
+      description: Actual input/output tokens, sampling, concurrency, cold or warm cache, first-token latency, each stream's decode rate
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Reproduction and sanitized logs
+      description: Commands and a public request if available. Remove credentials and private content.
+    validations:
+      required: true

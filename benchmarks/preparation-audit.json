@@ -1,0 +1,17 @@
+{
+  "prepared_tensor_count": 2419,
+  "measured_tensor_count": 2422,
+  "identical": false,
+  "different_tensors": [
+    "mtp.draft_lm_head.weight_packed",
+    "mtp.draft_lm_head.weight_scale",
+    "mtp.draft_lm_head.weight_shape"
+  ],
+  "comparison": "Every indexed tensor: dtype, shape, and SHA256 of raw bytes. Physical shard layout can differ.",
+  "source_modified": false,
+  "inference_on_new_copy_tested": false,
+  "all_non_mtp_tensors_identical": true,
+  "difference_explanation": "The archived checkpoint also contains three auxiliary mtp.draft_lm_head tensors. Native DFlash2 does not use the MTP head; vLLM target loading maps the mtp. prefix to None. All other indexed tensors match in dtype, shape, and SHA256.",
+  "matching_indexed_tensors": 2419,
+  "public_upstream_quantizer_used_unmodified": true
+}
