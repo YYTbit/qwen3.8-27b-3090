@@ -1,0 +1,239 @@
+{
+  "date": "2026-10-17",
+  "build": "Public checkpoint and complete runtime prepared using this repository scripts; reused compatible Python dependencies.",
+  "fresh_environment_install_verified": false,
+  "gpu_runtime_started": true,
+  "physical_gpus": [
+    2,
+    3
+  ],
+  "tensor_parallel_size": 2,
+  "pipeline_parallel_size": 1,
+  "configured_context_tokens": 1048576,
+  "max_num_seqs": 5,
+  "kv_cache_gib_per_gpu": 10.5,
+  "shared_gpu_kv_pool_tokens": 1228567,
+  "cpu_offload_gb": 0,
+  "actual_replay_input_tokens": 18649,
+  "request_text_shared": false,
+  "measurement": "(output_tokens - 1) / (last thinking/text delta - first thinking/text delta)",
+  "includes_reasoning": true,
+  "cold_run": {
+    "client": 1,
+    "status": "response_finished",
+    "usage": {
+      "input_tokens": 2521,
+      "output_tokens": 1024,
+      "cache_creation_input_tokens": 16128,
+      "cache_read_input_tokens": 0
+    },
+    "first_thinking_or_text_s": 12.01403117999871,
+    "first_answer_s": null,
+    "last_delta_s": 20.272386664000805,
+    "stop_reason": "max_tokens",
+    "stream_tokens_per_s": 123.87454160598114,
+    "http_status": 200,
+    "elapsed_s": 20.273182675002317
+  },
+  "warm_runs": [
+    {
+      "client": 1,
+      "status": "response_finished",
+      "usage": {
+        "input_tokens": 2521,
+        "output_tokens": 1024,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 16128
+      },
+      "first_thinking_or_text_s": 2.0758315400016727,
+      "first_answer_s": null,
+      "last_delta_s": 9.147806897002738,
+      "stop_reason": "max_tokens",
+      "stream_tokens_per_s": 144.65548144016898,
+      "http_status": 200,
+      "elapsed_s": 9.148503589000029
+    },
+    {
+      "client": 1,
+      "status": "response_finished",
+      "usage": {
+        "input_tokens": 2521,
+        "output_tokens": 1024,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 16128
+      },
+      "first_thinking_or_text_s": 2.0722191329987254,
+      "first_answer_s": null,
+      "last_delta_s": 9.126539791999676,
+      "stop_reason": "max_tokens",
+      "stream_tokens_per_s": 145.0175076312564,
+      "http_status": 200,
+      "elapsed_s": 9.127205675002187
+    },
+    {
+      "client": 1,
+      "status": "response_finished",
+      "usage": {
+        "input_tokens": 2521,
+        "output_tokens": 1024,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 16128
+      },
+      "first_thinking_or_text_s": 2.0766017050045775,
+      "first_answer_s": null,
+      "last_delta_s": 9.798913009006355,
+      "stop_reason": "max_tokens",
+      "stream_tokens_per_s": 132.47329196245576,
+      "http_status": 200,
+      "elapsed_s": 9.799563863001822
+    }
+  ],
+  "warm_decode_median_tps": 144.65548144016898,
+  "warm_cached_tokens": 16128,
+  "warm_uncached_tokens": 2521,
+  "warm_cache_hit_fraction": 0.8648184889270202,
+  "actual_claude_rounds": [
+    {
+      "round": 1,
+      "status": "result",
+      "is_error": false,
+      "elapsed_s": 39.00046848400234,
+      "first_thinking_or_text_s": 12.51567264100595,
+      "first_answer_s": 37.68480061399896,
+      "output_tokens": 3610,
+      "usage": {
+        "input_tokens": 5418,
+        "cache_creation_input_tokens": 16128,
+        "cache_read_input_tokens": 16128,
+        "output_tokens": 3610,
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "",
+        "iterations": [],
+        "speed": "standard"
+      },
+      "api_messages": [
+        {
+          "message_start_s": 12.514248115003284,
+          "first_delta_s": 12.51567264100595,
+          "last_delta_s": 13.623344546002045,
+          "first_answer_s": null,
+          "usage": {
+            "input_tokens": 2544,
+            "output_tokens": 201,
+            "cache_creation_input_tokens": 16128,
+            "cache_read_input_tokens": 0
+          },
+          "stop_reason": "tool_use"
+        },
+        {
+          "message_start_s": 16.21664900900214,
+          "first_delta_s": 16.217839675002324,
+          "last_delta_s": 38.984636706001766,
+          "first_answer_s": 37.68480061399896,
+          "usage": {
+            "input_tokens": 2874,
+            "output_tokens": 3409,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 16128
+          },
+          "stop_reason": "end_turn"
+        }
+      ],
+      "stream_tokens_per_s": 136.34836600094837,
+      "answer_text_shared": false,
+      "nonempty_answer_observed": true,
+      "tool_read_succeeded": true,
+      "complete_acceptance_passed": true,
+      "scope": "Read tool result succeeded and final stop_reason was end_turn."
+    },
+    {
+      "round": 2,
+      "status": "result",
+      "is_error": false,
+      "elapsed_s": 16.909679245996813,
+      "first_thinking_or_text_s": 1.1057876220002072,
+      "first_answer_s": 15.990481232998718,
+      "output_tokens": 2311,
+      "usage": {
+        "input_tokens": 956,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 21504,
+        "output_tokens": 2311,
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "",
+        "iterations": [],
+        "speed": "standard"
+      },
+      "api_messages": [
+        {
+          "message_start_s": 1.1045585019965074,
+          "first_delta_s": 1.1057876220002072,
+          "last_delta_s": 16.89585342400096,
+          "first_answer_s": 15.990481232998718,
+          "usage": {
+            "input_tokens": 956,
+            "output_tokens": 2311,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 21504
+          },
+          "stop_reason": null
+        }
+      ],
+      "stream_tokens_per_s": 146.29451383966372,
+      "answer_text_shared": false,
+      "nonempty_answer_observed": true,
+      "tool_read_succeeded": null,
+      "complete_acceptance_passed": false,
+      "scope": "CLI reported success with answer text, but the final stop reason was null while the temperature guard stopped the engine; excluded from complete-conversation acceptance."
+    }
+  ],
+  "paid_provider_called": false,
+  "safety": {
+    "hard_limit_mib": 24576,
+    "stop_threshold_mib": 24200,
+    "peak_used_mib": [
+      23808.0625,
+      23808.0625
+    ],
+    "peak_temperature_c": [
+      82,
+      70
+    ],
+    "status": "safety_stop",
+    "reason": "GPU2 temperature reached 82 C."
+  },
+  "observed_xid_or_device_handle_error": false,
+  "safety_monitor_scope": "An external experiment supervisor enforced these limits. The portable launcher itself does not provide this monitor.",
+  "failed_attempts": [
+    {
+      "attempt": 1,
+      "cause": "Path.open did not accept opener; corrected to built-in open with exclusive mode 0600. No GPU launch."
+    },
+    {
+      "attempt": 2,
+      "cause": "Automatic KV sizing hit the experiment memory stop threshold of 24,200 MiB on the first request. Switched portable default to fixed 10.5 GiB/card. No observed GPU OOM or device handle error."
+    }
+  ],
+  "limitations": [
+    "Different KV budget and cache state from the archived headline profile; do not merge the measurements.",
+    "Three capped warm replay runs produced thinking only and ended at max_tokens.",
+    "A later temperature stop prevents a sustained-load stability claim.",
+    "Actual 1M workload, five streams at 100 token/s each, and multi-day cache reuse were not validated."
+  ]
+}

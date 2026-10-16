@@ -12,6 +12,7 @@ The repository includes the measured launch profile, ordered upstream patches, c
 | --- | --- | --- |
 | 18,649 input tokens, one warm stream | **153 token/s median**, three runs | 1,024 output tokens per run, including reasoning |
 | Same profile restored from archive | **151 token/s median**, three runs | 143–161 token/s |
+| Checkpoint/runtime assembled with the published scripts | **145 token/s median**, three warm runs | 10.5 GiB KV/card; 18,649 input tokens; reused Python dependencies |
 | Five simultaneous streams | **56–69 token/s per stream** | Engine observed five running; four 1,024-token outputs and one 311-token tool call |
 | Warm time to first thinking/text delta | **0.80–0.91 s** | Not time to the final answer |
 | One unload/restart with disk cache | **2.15 s** to first thinking/text delta | 16,128 external-cache tokens recovered; one verified text prefix |
@@ -19,6 +20,8 @@ The repository includes the measured launch profile, ordered upstream patches, c
 | 120k-token cold input with images | No first token within 100 s | Canceled at the deadline |
 
 Full records, including the later restoration conversation and failed targets, are in [benchmarks/results.json](benchmarks/results.json). Rates include thinking tokens. The three headline runs reached `max_tokens` before answer text appeared. These are local observations on a private workload, not a public leaderboard or a quality evaluation.
+
+The [public-script assembly check](benchmarks/assembly-validation-20261017.json) used a separate 1.23M-token shared KV pool. Warm first thinking/text took 2.07–2.08 s with 16,128 cached tokens. A real Claude Code round completed a Read tool call and an answer at 136 token/s; answer text began at 37.68 s. During the next round, an external experiment guard stopped the engine at 82°C. That round is excluded from complete-conversation acceptance, and sustained-load stability remains unverified. The portable launcher does not include that external guard.
 
 **1M is the configured context limit. Actual 1M performance, five streams each above 100 token/s, and multi-day 99% cache hits remain unverified.** The shared GPU KV pool is about 1.32M tokens; five slots do not provide five independent resident 1M contexts.
 

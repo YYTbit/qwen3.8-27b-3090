@@ -24,6 +24,8 @@ The original base environment had vLLM **0.28 distribution metadata**. `PYTHONPA
 
 ## Existing environments
 
+The published preparation and launch scripts were run on the recorded host with reused Python dependencies. The resulting model/runtime served real requests and a complete Claude Code Read-tool round. A subsequent round coincided with the experiment's 82°C temperature stop. See the [assembly record](../benchmarks/assembly-validation-20261017.json); this check does not validate a fresh dependency installation or sustained-load stability.
+
 Reuse a compatible environment if available. Before installation, inspect versions with its own Python executable. Run every recipe command with that executable. The recorded dependency versions describe the working environment; they are not a validated fresh-install lock file.
 
 The official 0.30 wheel requests `compressed-tensors==0.17.0` and `flashinfer-python==0.6.18.post1`. The measured reused environment contains 0.18.0 and 0.6.18 respectively. Do not present its package inventory as a resolver-consistent installation recipe.
