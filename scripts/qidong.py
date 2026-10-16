@@ -32,12 +32,15 @@ def zhixing():
     p.add_argument('--port', type=int, default=8000)
     p.add_argument('--cache-port', type=int, default=8100)
     p.add_argument('--cache-http-port', type=int, default=8101)
+    p.add_argument('--kv-cache-gib', type=float, default=10.5)
     p.add_argument('--cuda-home', type=Path)
     p.add_argument('--numa-node', type=int)
     a = p.parse_args()
     gen = Path(__file__).resolve().parents[1]
     if len(a.gpus.split(',')) != 2:
         p.error('This measured profile uses exactly two GPUs.')
+    if not 9.5 <= a.kv_cache_gib <= 11.5:
+        p.error('Use a per-GPU KV budget between 9.5 and 11.5 GiB; verify total device memory.')
     for n in ['runtime', 'target', 'draft', 'work_dir']:
         setattr(a, n, getattr(a, n).resolve())
     if not (a.runtime / 'recipe-runtime.json').is_file():
@@ -51,12 +54,13 @@ def zhixing():
     a.work_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
     miyao = a.work_dir / 'api-key'
     if not miyao.exists():
-        with miyao.open('x', opener=lambda f, flags: os.open(f, flags, 0o600)) as f:
+        with open(miyao, 'x', opener=lambda f, flags: os.open(f, flags, 0o600)) as f:
             f.write(secrets.token_urlsafe(32) + '\n')
     if not miyao.read_text().strip():
         p.error('The API key file is empty.')
     moshi = json.loads((gen / 'configs/launch-template.json').read_text())
     qianming = hashlib.sha256()
+    qianming.update(json.dumps({'kv_cache_gib': a.kv_cache_gib}).encode())
     for f in [a.runtime / 'recipe-runtime.json', gen / 'configs/launch-template.json', gen / 'scripts/qwen-claude-template.jinja']:
         qianming.update(f.read_bytes())
     for m in [a.target, a.draft]:
@@ -71,6 +75,7 @@ def zhixing():
     cipan_wenjian.write_text(json.dumps(cipan, indent=2) + '\n')
     duiying = {'PYTHON_EXECUTABLE': sys.executable, 'RECIPE_FILES': str(gen / 'scripts'), 'TARGET_MODEL': str(a.target), 'DRAFT_MODEL': str(a.draft), 'PREPARED_VLLM_RUNTIME': str(a.runtime), 'DISK_CACHE_CONFIG': str(cipan_wenjian), 'GPU_A,GPU_B': a.gpus, 'READ_API_KEY_FROM_LOCAL_FILE': miyao.read_text().strip()}
     mingling = tianchong(moshi['argv'], duiying)
+    mingling += ['--kv-cache-memory-bytes', str(int(a.kv_cache_gib * 2 ** 30))]
     mingling[mingling.index('--port') + 1] = str(a.port)
     zhuanhuan = json.loads(mingling[mingling.index('--kv-transfer-config') + 1])
     zhuanhuan['kv_connector_extra_config']['lmcache.mp.port'] = a.cache_port
@@ -85,8 +90,12 @@ def zhixing():
     if not shutil.which('gcc-10') or not shutil.which('g++-10'):
         p.error('The archived profile needs gcc-10 and g++-10; see docs/setup.md.')
     peizhi['PYTHONPATH'] += os.pathsep + huanjing.get('PYTHONPATH', '')
-    for n in ['NCCL_ALGO', 'NCCL_PROTO', 'NCCL_MIN_NCHANNELS', 'NCCL_MAX_NCHANNELS', 'NCCL_P2P_LEVEL', 'VLLM_DFLASH2_DISABLE_EAGLE_BLOCK_DROP']:
+    for n in ['NCCL_ALGO', 'NCCL_PROTO', 'NCCL_MIN_NCHANNELS', 'NCCL_MAX_NCHANNELS', 'NCCL_P2P_LEVEL', 'VLLM_DFLASH2_DISABLE_EAGLE_BLOCK_DROP', 'VLLM_MARLIN_INPUT_DTYPE', 'VLLM_MARLIN_INT8_INCLUDE_RE', 'VLLM_MARLIN_INT8_EXCLUDE_RE', 'HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'http_proxy', 'https_proxy', 'all_proxy']:
         huanjing.pop(n, None)
+    peizhi['NO_PROXY'] = peizhi['no_proxy'] = '127.0.0.1,localhost,::1'
+    cuda = peizhi.get('CUDA_HOME', huanjing.get('CUDA_HOME'))
+    if cuda:
+        peizhi['PATH'] = str(Path(cuda) / 'bin') + os.pathsep + huanjing.get('PATH', '')
     for n in ['TMPDIR', 'TRITON_CACHE_DIR', 'TORCHINDUCTOR_CACHE_DIR', 'VLLM_CACHE_ROOT', 'CUDA_CACHE_PATH']:
         f = a.work_dir / n.lower()
         f.mkdir(exist_ok=True)

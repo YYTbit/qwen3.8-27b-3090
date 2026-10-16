@@ -8,5 +8,7 @@
   "patch_count": 9,
   "fuzz": 0,
   "fresh_environment_install_verified": false,
-  "new_runtime_gpu_launch_verified": false
+  "new_runtime_gpu_launch_verified": false,
+  "official_executable_mode_preserved": true,
+  "numa_wrapper_mode": "0o755"
 }

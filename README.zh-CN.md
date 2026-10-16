@@ -67,7 +67,7 @@ python scripts/zhunbei_yunxing.py \
 
 [wheel 来源](configs/wheel-source.json)固定官方地址和 SHA256。运行库脚本校验 wheel、补丁摘要，在新目录中按顺序应用，`fuzz=0`。
 
-[模型准备核对](benchmarks/preparation-audit.json)确认所有非 MTP 张量与实测模型一致。省略的三个辅助 MTP 草稿输出头张量不参与 DFlash2，准备副本尚未单独启动进行 GPU 集成验收。
+[模型准备核对](benchmarks/preparation-audit.json)确认所有非 MTP 张量与实测模型一致。省略的三个辅助 MTP 草稿输出头张量不参与 DFlash2，已验收范围以审计记录为准。
 
 ### 3. 启动模型
 
@@ -77,7 +77,9 @@ python scripts/qidong.py --runtime runtime/tp2 \
   --work-dir .local --gpus 0,1 --port 8000
 ```
 
-保持此进程运行。API 监听 `127.0.0.1:8000`，随机密钥保存在 `.local/api-key`，磁盘 KV 放在 `.local/kv-cache`。`Ctrl+C` 停止推理服务及其缓存进程，磁盘上的权重与缓存保留。
+保持此进程运行。首次启动编译内核和计算图可能需要几分钟，看到 `Application startup complete` 后再连接。API 监听 `127.0.0.1:8000`，随机密钥保存在 `.local/api-key`，磁盘 KV 放在 `.local/kv-cache`。`Ctrl+C` 停止推理服务及其缓存进程，磁盘上的权重与缓存保留。
+
+便携启动器固定使用**每卡10.5 GiB KV预算**，为工作区保留余量。归档测速配置采用0.94显存比例自动分配，原参数仍保留在启动模板中。两者均保留1M长度和五槽位，共享池容量有所不同，可用`--kv-cache-gib`调节便携预算。
 
 多路 CPU 主机先查看 `nvidia-smi topo -m`，可通过 `--numa-node N` 绑定合适的 NUMA 节点。实测配置关闭 P2P 和 custom all-reduce。[完整启动配置](configs/launch-template.json)可直接核对。
 
@@ -121,6 +123,8 @@ python scripts/cesu.py --request /path/to/your-request.json \
 - [ ] 在其他机器验证干净环境安装。
 - [ ] 在**每卡 17 GiB**内改善四卡五并发性能。
 - [ ] 验证长上下文、多模态持久化和多日缓存复用。
+
+[四卡实验报告](docs/four-gpu.zh-CN.md)保留W4A8、分片采样和NUMA候选的失败结果及逐路记录。
 
 ## 参与复现
 

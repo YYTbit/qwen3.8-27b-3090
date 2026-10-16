@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Preserve official wheel file modes, including the executable NUMA wrapper.
+- Initialize the local API key with exclusive creation and mode 0600.
+- Pin a 10.5 GiB per-GPU KV pool in the portable launcher for workspace headroom.
+- Set physical GPU ordering and isolate inherited proxy and activation-quantization options.
+- Publish the three rejected four-GPU candidates with per-stream results.
+
 ## v0.1.2 (2026-10-17)
 
 - Preserve request object order during replay, including tool schema fields that affect rendered prefix tokens.

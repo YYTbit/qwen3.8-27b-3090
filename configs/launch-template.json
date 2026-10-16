@@ -72,6 +72,7 @@
   ],
   "environment": {
     "CUDA_VISIBLE_DEVICES": "GPU_A,GPU_B",
+    "CUDA_DEVICE_ORDER": "PCI_BUS_ID",
     "CUDA_HOME": "CUDA_12_9_TOOLKIT",
     "CC": "gcc-10",
     "CXX": "g++-10",

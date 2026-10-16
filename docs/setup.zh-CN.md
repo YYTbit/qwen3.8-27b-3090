@@ -91,7 +91,7 @@ python -m pip install --no-build-isolation scratch/lmcache/LMCache-dev \
 
 运行库脚本校验 wheel、补丁的 SHA256，以 `fuzz=0` 应用到新目录。本机用此脚本重建后，2,683 个 Python 源文件与归档版本一致。
 
-[模型准备核对](../benchmarks/preparation-audit.json)显示，所有非 MTP 张量与实测模型的形状、类型、原始字节 SHA256 一致。省略的三个辅助 MTP 草稿输出头张量不参与原生 DFlash2；尚未单独启动此副本进行 GPU 集成验收。
+[模型准备核对](../benchmarks/preparation-audit.json)显示，所有非 MTP 张量与实测模型的形状、类型、原始字节 SHA256 一致。省略的三个辅助 MTP 草稿输出头张量不参与原生 DFlash2；GPU集成验收范围以审计记录为准。
 
 ## 启动与连接
 

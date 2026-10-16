@@ -91,7 +91,7 @@ The archived target configuration then supplies the same group assignments and Y
 
 The runtime builder checks the wheel and patch SHA256 values, uses `patch --fuzz=0`, and writes into a new directory. On the recorded host, all 2,683 Python sources from this build matched the archived working runtime.
 
-Model preparation audit: [preparation-audit.json](../benchmarks/preparation-audit.json). All non-MTP tensors match the measured checkpoint in shape, dtype, and raw-byte SHA256. Three unused auxiliary MTP draft-head tensors are omitted; native DFlash2 does not use them. The prepared copy has not been launched as a separate GPU service.
+Model preparation audit: [preparation-audit.json](../benchmarks/preparation-audit.json). All non-MTP tensors match the measured checkpoint in shape, dtype, and raw-byte SHA256. Three unused auxiliary MTP draft-head tensors are omitted; native DFlash2 does not use them. GPU integration scope is recorded in the audits.
 
 ## Start and connect
 

@@ -1,0 +1,167 @@
+{
+  "workload": "Same real private Claude Code history, reasoning included, cap 1024",
+  "records": [
+    {
+      "profile": "four-w4a8-20261017",
+      "actual_input_tokens": 18649,
+      "configured_context_tokens": 1048576,
+      "max_num_seqs": 5,
+      "warm_single_tps": [
+        104.73330030110458,
+        78.98589855061212,
+        85.83755865409142
+      ],
+      "median_warm_single_tps": 85.83755865409142,
+      "clients_submitted": 5,
+      "max_running": 5.0,
+      "finished_clients": [
+        {
+          "client": 1,
+          "output_tokens": 1024,
+          "tps": 45.290811551892546,
+          "ttft_s": 9.22678206400451
+        },
+        {
+          "client": 3,
+          "output_tokens": 1024,
+          "tps": 33.785183406252905,
+          "ttft_s": 2.26811767599429
+        },
+        {
+          "client": 4,
+          "output_tokens": 1024,
+          "tps": 37.04739386058828,
+          "ttft_s": 6.691462198003137
+        },
+        {
+          "client": 5,
+          "output_tokens": 1024,
+          "tps": 40.20092302967591,
+          "ttft_s": 6.693738324000151
+        }
+      ],
+      "canceled_clients": 1,
+      "first_token_limit_s": 10,
+      "peak_total_memory_mib_by_gpu": [
+        15600.0,
+        15586.0625,
+        15586.0625,
+        15586.0625
+      ],
+      "peak_temperature_c_by_gpu": [
+        59,
+        62,
+        64,
+        59
+      ],
+      "promoted": false
+    },
+    {
+      "profile": "four-sharded-20261017",
+      "actual_input_tokens": 18649,
+      "configured_context_tokens": 1048576,
+      "max_num_seqs": 5,
+      "warm_single_tps": [
+        82.28274753456064,
+        80.04521550945157,
+        87.10264707823818
+      ],
+      "median_warm_single_tps": 82.28274753456064,
+      "clients_submitted": 5,
+      "max_running": 5.0,
+      "finished_clients": [
+        {
+          "client": 1,
+          "output_tokens": 1024,
+          "tps": 38.930050433326805,
+          "ttft_s": 7.1239273519968265
+        },
+        {
+          "client": 2,
+          "output_tokens": 1024,
+          "tps": 43.27226932897168,
+          "ttft_s": 9.256271872996876
+        },
+        {
+          "client": 3,
+          "output_tokens": 1024,
+          "tps": 39.376798206305146,
+          "ttft_s": 4.399363593001908
+        },
+        {
+          "client": 5,
+          "output_tokens": 1024,
+          "tps": 37.80458834213548,
+          "ttft_s": 1.9866164909981308
+        }
+      ],
+      "canceled_clients": 1,
+      "first_token_limit_s": 10,
+      "peak_total_memory_mib_by_gpu": [
+        15606.0,
+        15592.0625,
+        15592.0625,
+        15592.0625
+      ],
+      "peak_temperature_c_by_gpu": [
+        57,
+        61,
+        62,
+        57
+      ],
+      "promoted": false
+    },
+    {
+      "profile": "four-numa-mode-20261017",
+      "actual_input_tokens": 18649,
+      "configured_context_tokens": 1048576,
+      "max_num_seqs": 5,
+      "warm_single_tps": [
+        68.07724044234585,
+        63.31746452797336,
+        81.18517997863091
+      ],
+      "median_warm_single_tps": 68.07724044234585,
+      "clients_submitted": 5,
+      "max_running": 4.0,
+      "finished_clients": [
+        {
+          "client": 1,
+          "output_tokens": 1024,
+          "tps": 45.51912682913475,
+          "ttft_s": 6.60864210499858
+        },
+        {
+          "client": 2,
+          "output_tokens": 1024,
+          "tps": 40.93049710077831,
+          "ttft_s": 3.210688343999209
+        }
+      ],
+      "canceled_clients": 3,
+      "first_token_limit_s": 10,
+      "peak_total_memory_mib_by_gpu": [
+        15600.0,
+        15586.0625,
+        15586.0625,
+        15586.0625
+      ],
+      "peak_temperature_c_by_gpu": [
+        61,
+        65,
+        67,
+        60
+      ],
+      "promoted": false
+    }
+  ],
+  "actual_1m_measured": false,
+  "five_streams_each_100_passed": false,
+  "cpu_offload_gb": 0,
+  "kernel_changes_written_by_this_recipe": false,
+  "notes": [
+    "Five-client trials contain cancellations. Completed-stream rates are not a successful five-stream sustained throughput result.",
+    "Original W4A8 public-CLI first replay used sorted schema keys and 18652 rendered input tokens; excluded here.",
+    "One failed NUMA startup was caused by lost executable permission in unpacked upstream numa_wrapper.sh. Retried using identical official file bytes and restored wheel mode."
+  ]
+}

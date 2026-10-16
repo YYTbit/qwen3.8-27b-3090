@@ -67,7 +67,7 @@ python scripts/zhunbei_yunxing.py \
 
 The [wheel source](configs/wheel-source.json) pins its official URL and SHA256. The runtime builder verifies the wheel and patches and applies them with `fuzz=0` in a new directory.
 
-Model preparation audit: [preparation-audit.json](benchmarks/preparation-audit.json). All non-MTP tensors match the measured checkpoint in shape, dtype, and raw-byte SHA256. Three unused auxiliary MTP draft-head tensors are omitted; native DFlash2 does not use them. The prepared copy has not been launched as a separate GPU service.
+Model preparation audit: [preparation-audit.json](benchmarks/preparation-audit.json). All non-MTP tensors match the measured checkpoint in shape, dtype, and raw-byte SHA256. Three unused auxiliary MTP draft-head tensors are omitted; native DFlash2 does not use them. See the audit files for the validated scope.
 
 ### 3. Start the model
 
@@ -77,7 +77,9 @@ python scripts/qidong.py --runtime runtime/tp2 \
   --work-dir .local --gpus 0,1 --port 8000
 ```
 
-Keep this process running. The API binds to `127.0.0.1:8000`; a random local API key is written to `.local/api-key`. Persistent KV files live under `.local/kv-cache`. `Ctrl+C` stops the server and its cache worker; it retains the weights and disk cache on storage.
+Keep this process running. The first start compiles kernels and graphs and can take several minutes; wait for `Application startup complete` before connecting. The API binds to `127.0.0.1:8000`; a random local API key is written to `.local/api-key`. Persistent KV files live under `.local/kv-cache`. `Ctrl+C` stops the server and its cache worker; it retains the weights and disk cache on storage.
+
+The portable launcher pins KV storage to **10.5 GiB per GPU** to leave workspace headroom. The archived measurement used automatic sizing at 0.94 GPU utilization; its original arguments remain in the launch template. Both configurations keep the 1M limit and five slots, with different shared pool capacities. `--kv-cache-gib` controls the portable budget.
 
 For a multi-socket host, inspect `nvidia-smi topo -m` and optionally pass `--numa-node N`. The measured profile disables P2P and custom all-reduce. See the [complete launch profile](configs/launch-template.json).
 
@@ -121,6 +123,8 @@ Image inputs can use the multimodal model, but the verified restart result cover
 - [ ] Validate installation from a fresh environment on another host.
 - [ ] Improve four-GPU, five-stream performance within **17 GiB per GPU**.
 - [ ] Validate long-context performance, multimodal persistence, and multi-day cache reuse.
+
+See the [four-GPU experiment report](docs/four-gpu.md) for rejected W4A8, batch-sharded sampling, and NUMA candidates, including individual stream results.
 
 ## Contributing
 

@@ -39,7 +39,10 @@ def zhixing():
         with zipfile.ZipFile(a.wheel) as f:
             for n in f.namelist():
                 if n.startswith('vllm/') or '.dist-info/' in n:
-                    f.extract(n, linshi)
+                    lujing = Path(f.extract(n, linshi))
+                    quanxian = (f.getinfo(n).external_attr >> 16) & 0o777
+                    if quanxian:
+                        lujing.chmod(quanxian)
         for xiang in peizhi['patch_order']:
             mingling = ['patch', '--batch', '--forward', '--fuzz=0', '-p1', '-d', str(linshi / 'vllm'), '-i', str(gen / 'patches' / xiang['name'])]
             subprocess.run(mingling + ['--dry-run'], check=True)
