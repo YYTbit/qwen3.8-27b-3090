@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.2 (2026-10-17)
+
+- Preserve request object order during replay, including tool schema fields that affect rendered prefix tokens.
+
 ## v0.1.1 (2026-10-17)
 
 - Send Bearer authentication in the timing tool for vLLM's native endpoint.

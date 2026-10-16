@@ -96,7 +96,7 @@ def zhixing():
         p.error('Choose a new output file.')
     x = json.loads(a.request.read_text())
     x['stream'] = True
-    zhengwen = json.dumps(x, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode()
+    zhengwen = json.dumps(x, ensure_ascii=False).encode()
     miyao = a.key_file.read_text().strip()
     tongbu = threading.Barrier(a.concurrency)
     with ThreadPoolExecutor(max_workers=a.concurrency) as chi:
