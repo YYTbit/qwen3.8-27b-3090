@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.1.1 (2026-10-17)
+
+- Send Bearer authentication in the timing tool for vLLM's native endpoint.
+
 ## v0.1.0 (2026-10-17)
 
 - Publish the dual-RTX-3090 launch profile and bilingual README.

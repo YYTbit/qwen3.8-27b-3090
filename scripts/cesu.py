@@ -12,7 +12,7 @@ import urllib.request
 
 def qingqiu(bianhao, a, zhengwen, miyao, tongbu):
     jilu = {'client': bianhao, 'status': 'not_started', 'usage': {}, 'first_thinking_or_text_s': None, 'first_answer_s': None, 'last_delta_s': None, 'stop_reason': None, 'stream_tokens_per_s': None}
-    xinxi = urllib.request.Request(a.url.rstrip('/') + '/v1/messages', data=zhengwen, headers={'Content-Type': 'application/json', 'x-api-key': miyao, 'anthropic-version': '2023-06-01'})
+    xinxi = urllib.request.Request(a.url.rstrip('/') + '/v1/messages', data=zhengwen, headers={'Content-Type': 'application/json', 'Authorization': 'Bearer ' + miyao, 'x-api-key': miyao, 'anthropic-version': '2023-06-01'})
     tongbu.wait()
     kaishi = time.monotonic()
     try:
