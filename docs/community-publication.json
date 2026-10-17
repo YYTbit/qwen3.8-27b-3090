@@ -1,0 +1,32 @@
+{
+  "checked_at": "2026-10-17T04:11:51.128060+00:00",
+  "account": "YYTbit",
+  "source_draft_commit": "7f0004ebd08b00d7d03598724a5ce24d3ae0d338",
+  "posts": [
+    {
+      "community": "club-3090",
+      "category": "Show and tell",
+      "status": "published",
+      "url": "https://github.com/noonghunna/club-3090/discussions/1715",
+      "created_at": "2026-10-17T04:10:20Z",
+      "languages": [
+        "English",
+        "简体中文"
+      ],
+      "published_body_sha256": "c59e91ef3a95f686fbbb77425b7685157f02d462327c511dc119012940da0f32",
+      "body_readback_verified": true,
+      "public_page_verified": true,
+      "ai_assistance_disclosed": true
+    }
+  ],
+  "pending": [
+    {
+      "community": "V2EX",
+      "status": "awaiting_authenticated_session"
+    },
+    {
+      "community": "r/LocalLLaMA",
+      "status": "awaiting_authenticated_session_and_eligibility_check"
+    }
+  ]
+}

@@ -1,6 +1,14 @@
-# Community post drafts
+# Community posts
 
-English and Chinese versions of the same deployment story. These drafts have not been posted to external communities. AI assistance was used to prepare them; review the destination's current submission and disclosure rules before posting.
+English and Chinese versions of the same deployment story. An adapted bilingual version was published to club-3090 on 2026-10-17. AI assistance was used to prepare it and is disclosed in the live post.
+
+## Publication status
+
+| Community | Status | Link / next step |
+| --- | --- | --- |
+| club-3090, Show and tell | Published by YYTbit; public page and body verified | [Discussion #1715](https://github.com/noonghunna/club-3090/discussions/1715), English with a Chinese section |
+| V2EX, 分享创造 | Not posted | An authenticated account/session is needed |
+| Reddit, r/LocalLLaMA | Not posted | An authenticated account/session and posting eligibility are needed |
 
 ## 中文
 
@@ -79,6 +87,6 @@ If you have two 3090s, I'd like to compare reproductions, particularly on hosts 
 ## Distribution plan
 
 1. Start with an appropriate technical sharing category in club-3090 Discussions and a Chinese post in V2EX 分享创造. Identify your relationship to the recipe and credit upstream.
-2. Check each destination's current account eligibility, self-promotion, and AI-content rules. Disclose the assistance involved and use a permitted format. The current draft has not been approved by any community.
+2. Check each destination's current account eligibility, self-promotion, and AI-content rules. Disclose the assistance involved and use a permitted format. Record published URLs in the table above.
 3. Retain actual input length, warm-cache conditions, output lengths, reasoning-token accounting, and per-stream qualifiers when adapting the text. The README and measurement records provide the complete validation scope.
 4. Reply to reproduction questions and add third-party results with their hardware and workload conditions. Keep publication status separate from draft preparation.
