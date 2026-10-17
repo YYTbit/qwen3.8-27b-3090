@@ -10,11 +10,11 @@
 - The configuration requests no TTL and 256 GiB LRU storage. Eviction and storage availability still matter. The upstream implementation's accounting after restart does not cover all old files; monitor actual disk usage separately.
 - Host RAM is used for cache I/O staging. Model inference and active attention KV remain on GPUs; CPU model offload is zero.
 
-The generated namespace includes the runtime manifest, launch profile, template, model JSON and weight-file identity. Changing those inputs creates a separate namespace. Do not manually reuse a cache between TP2 and TP4, different checkpoints, or incompatible runtime layouts.
+The generated namespace includes the runtime manifest, launch profile, template, model JSON and weight-file identity. Changing those inputs creates a separate namespace. Keep each checkpoint and runtime layout in its generated namespace.
 
 ## Verified and pending
 
-One text prefix was saved, the server unloaded, and 16,128 tokens recovered from disk on restart. Multimodal persistence, multi-day retention, and every cache boundary under concurrent requests remain pending. A previous TP4 experiment produced repeated garbage after cache reuse; it was rejected and is not included as a recommended profile. Repeated text with zero draft acceptance is a correctness failure, even if the API returns HTTP 200.
+One text prefix was saved, the server unloaded, and 16,128 tokens recovered from disk on restart. Multimodal persistence, multi-day retention, and cache behavior under concurrent requests are the next validation steps. Verify readable content and normal draft acceptance when checking a cache reload.
 
 ## Common errors
 
@@ -31,6 +31,6 @@ One text prefix was saved, the server unloaded, and 16,128 tokens recovered from
 
 ## Memory budget
 
-The published TP2 profile uses about 23.3 GiB per 24 GB card. A separate four-GPU research budget is 17 GiB per card. Two copies of this TP2 configuration do not automatically fit that budget or retain the same 1M KV capacity.
+The published TP2 profile uses about 23.3 GiB per 24 GB card. The portable launcher sets a 10.5 GiB KV budget per card to reserve workspace. Available capacity is shared by the active requests.
 
 Five request slots share one pool of roughly 1.32M GPU KV tokens. Prefix sharing can reduce repeated storage, but five unrelated 1M contexts require substantially more memory. Cache on disk does not make GPU capacity unlimited.

@@ -1,92 +1,101 @@
 # Community posts
 
-English and Chinese versions of the same deployment story. An adapted bilingual version was published to club-3090 on 2026-10-17. AI assistance was used to prepare it and is disclosed in the live post.
+English and Chinese versions of the measured deployment story. The live bilingual club-3090 post is linked below. Implementation, data organization and writing used AI assistance, disclosed in the community post.
 
 ## Publication status
 
 | Community | Status | Link / next step |
 | --- | --- | --- |
-| club-3090, Show and tell | Published by YYTbit; public page and body verified | [Discussion #1715](https://github.com/noonghunna/club-3090/discussions/1715), English with a Chinese section |
-| V2EX, 分享创造 | Not posted | An authenticated account/session is needed |
+| club-3090, Show and tell | Existing public post; publication receipt tracks its latest verified body | [Discussion #1715](https://github.com/noonghunna/club-3090/discussions/1715) |
+| V2EX | Not posted | An authenticated account/session is needed |
 | Reddit, r/LocalLLaMA | Not posted | An authenticated account/session and posting eligibility are needed |
+
+The exploration archive expands the existing post, with result attribution and failed paths. No duplicate promotion thread is needed.
 
 ## 中文
 
 ### 标题
 
-把 Qwen3.8-27B 接进 Claude Code：双3090，18.6k热缓存约150 token/s，配方已开源
+双3090把Qwen接进Claude Code：从llama.cpp、SGLang一路试到原生vLLM+DFlash2，18.6k热缓存约150 token/s
 
 ### 正文
 
-我平时在 Claude Code 里处理长任务，有时会同时开几个终端。手边有3090，就想把 Qwen3.8-27B 接进这套工作流。希望用起来很直接：一个模型服务供多个会话连接，需要时启动，关闭某个终端后，其他会话还能继续用。
+我想把本地Qwen接进平时的Claude Code工作流：回到已有长会话就能继续，多开几个终端也能共用服务。手边是3090，没有NVLink，这台机器的CUDA peer access也不可用。
 
-最初卡住我的，是回到已有会话后发下一条消息。模型已经加载，显存也占了，但历史一长，请求仍然要等很久。工具返回的内容还触发过接口错误，重启服务后又要确认缓存能否接着用。每次换一组参数，都要重新回到日常使用的场景里试一遍。
-
-后来我固定用同一份真实 Claude Code 会话来验证，检查工具能否完整返回，再看热缓存解码、五路请求和卸载后的缓存回载。跑通的一组双卡配置单独归档，准备权重、构建运行库和启动服务的过程也整理成了脚本。现在把这份配方开源出来，方便有相似配置的人照着试，也方便下一次直接恢复。
+最初遇到的情况很直接。模型已经加载，显存已经占了，下一条消息仍然要等很久。为了弄清楚慢在哪里，我们陆续尝试了llama.cpp、SGLang、vLLM，以及TP/PP、动态分块、MTP、DFlash2/8、KV精度和磁盘缓存。最后保留的是vLLM原生DFlash2加公开HyperQwen补丁。
 
 项目：[YYTbit/qwen3.8-27b-3090](https://github.com/YYTbit/qwen3.8-27b-3090)
 
-**这次的硬件是两张24GB RTX 3090，没有NVLink，CUDA peer access也不可用。** 使用 vLLM 0.30 原生 DFlash2、HyperQwen 公开补丁和 LMCache。目标模型为去拒绝版 AWQ4，embedding 和输出头采用INT8，草稿为DFlash2 W4A16，目标KV为INT4。模型推理的CPU offload设为0，磁盘缓存保存和回载会经过主机内存暂存。
+[完整中文探索过程](https://github.com/YYTbit/qwen3.8-27b-3090/blob/main/docs/exploration.zh-CN.md) · [配置归属与数据](https://github.com/YYTbit/qwen3.8-27b-3090/tree/main/benchmarks/history)
 
-在18,649-token真实历史上，目前记录的结果是：
+这次把历史记录也整理出来了：八个阶段、247份留存证据文件的脱敏摘录、236个不同的原始SHA256和41行关键CSV记录。报告与汇总存在重叠，这个数量指文件。每组结果标明所属配置，早期自改内核的成绩也保留其分支身份。
 
-| 场景 | 结果 |
+其中几次测量改变了后续的选择。
+
+- **初期prefill好看，长历史后段仍会很慢。** 早期vLLM W4A8 PP2的观察窗口达到3437 token/s；实际跑完520,761-token历史后，末段批次速度中位数为363，冷首token约797秒。
+- **高缓存命中也要继续测下一轮。** 同一个旧PP2配置的后续输入命中约99.8%的前缀，首token仍需约13至14秒，decode为18至19 token/s。
+- **动态分块需要看实际执行结果。** SGLang原生动态分块在校准阶段失败，没有真实请求速度；另一条记录的汇总字段与实际启动参数冲突，档案中已注明。SGLang同首轮提示的TP/PP观测也附完整条件和参数缺失项。
+- **能恢复，才方便继续做实验。** 最终双卡配置独立归档，后续从归档恢复并重放，保留了逐次重测结果。公开脚本又重建了一份独立权重与运行库。
+
+最终保留的方案是完整官方vLLM 0.30 CUDA12.9 wheel、九个原样公开HyperQwen补丁、原生DFlash2和上游LMCache。目标主体AWQ4、embedding/输出头INT8，草稿W4A16，目标KV为INT4。推理CPU offload为0，磁盘缓存保存与回载经过主机内存暂存。
+
+| 最终配方相关实测 | 结果 |
 | --- | --- |
-| 热缓存单路，三轮各输出1,024 token | 中位 **153 token/s**，三轮范围148–159 |
-| 从独立归档恢复后重测，同样三轮 | 中位 **151 token/s** |
-| 用公开脚本新建权重和运行库，复用Python依赖 | 热缓存三轮中位 **145 token/s**，每轮1,024输出 |
-| 五路同时发起的API回放 | **每路56–69 token/s**；引擎观测到五路运行 |
+| 18,649输入、热单路、三次各1,024输出 | 中位 **152.97 token/s** |
+| 独立归档恢复，同请求三次 | 中位 **150.77 token/s** |
+| 后续再次恢复，同请求三次 | 中位 **145.50 token/s** |
+| 公开脚本重建，另设每卡10.5GiB KV | 热三轮中位 **144.66 token/s** |
+| 最终双卡五请求回放，观测到五路运行 | **逐路56.47至69.04 token/s** |
+| 一次实际卸载重启 | 外部缓存回载16,128个文本前缀token，首思考/文本约2.15秒 |
 
-单路标题数据命中17,920个前缀token，约96.1%；速度包含思考，三轮都在思考阶段达到输出上限。五路中四路输出1,024 token，一路输出311 token后请求工具。完整工具往返另用官方 Claude Code 验收，Read成功，两轮对话正常结束。逐次计时、输出长度和测试条件都保留在[结果记录](https://github.com/YYTbit/qwen3.8-27b-3090/blob/main/benchmarks/results.json)里。
+标题单路数据命中17,920 token，约96.1%，速度含思考，三个1,024输出都在正文出现前封顶。五路中四路输出1,024，一路311 token后请求工具。完整Read工具往返和两轮Claude Code对话另外验收，逐次结果、首正文时间和独立重测都在仓库。
 
-缓存也做了一次实际卸载重启：同一文本前缀从磁盘回载16,128 token，首个思考或文本增量约2.15秒。[这次复测的记录](https://github.com/YYTbit/qwen3.8-27b-3090/blob/main/docs/measurements.md)和准备脚本、补丁摘要一起放在仓库，方便核对。
+**标题成绩来自本机18.6k热缓存交互。** 启动器配置1M单请求上限与五个槽位，使用约1.32M-token共享KV池。更长上下文、更多客户端和多日缓存的测量列入后续复现计划。
 
-日常使用时，服务和 Claude Code 分开启动。多个终端连接同一个服务，启动器通过当前进程的环境变量接入，不写入 Claude Code 或 cc-switch 配置。中英文安装说明提供固定版本、已有环境复用方式，以及 hf-mirror 和清华源入口。
+不同阶段的输入、精度和运行库存在差异，因此宣传中的约150只引用最终配方的对应记录。算法与内核归属vLLM、HyperQwen、DFlash、LMCache及相关上游；这个仓库整理本机的组合、准备过程、恢复方式和选择依据。安装说明提供固定版本、已有环境复用方式以及中国镜像入口。
 
-推理算法和内核来自 vLLM、HyperQwen、DFlash、LMCache，模型来自对应的权重作者。这份仓库整理了它们在这台机器上的组合、准备过程和实测记录。
-
-如果你也有双3090，尤其是没有NVLink的配置，欢迎试跑并反馈显卡互联方式、实际上下文、缓存状态和逐路速度。我想先收集几台不同机器的复现，把安装和日常使用的路径补齐。有帮助的话，欢迎Star收藏，后续结果会继续更新在仓库。
+如果你有相似配置，欢迎带上实际上下文、缓存、互联和逐路速度复现。希望这份记录能帮助后续部署时更快判断哪些条件值得继续试。有帮助的话，欢迎Star收藏，也欢迎补充不同机器的结果。
 
 ## English
 
 ### Title
 
-Getting Qwen3.8-27B into Claude Code on two RTX 3090s: ~150 tok/s at 18.6k warm context, recipe included
+Qwen3.8-27B on two 3090s: the llama.cpp, SGLang and vLLM/DFlash2 experiments behind ~150 tok/s at 18.6k warm context
 
 ### Post
 
-I use Claude Code for long tasks, sometimes with several terminals open at once. I wanted to use my 3090s for the same workflow: one local Qwen3.8-27B server that several sessions could connect to, with its lifetime managed separately from the clients.
+I wanted local Qwen to fit my usual Claude Code workflow: return to a long conversation, send the next message, and let several terminals share one server. The machine has RTX 3090s, no NVLink, and no working CUDA peer access.
 
-Coming back to an existing conversation was where things got difficult. The model was loaded and occupying VRAM, but the next message could still take a long time as the history grew. Tool results exposed content-format errors, and each restart meant checking whether the cached prefix could be reused. Every configuration change sent me back to the same daily workflow to try again.
-
-I ended up using one real Claude Code conversation to check tool round trips, warm decode, five simultaneous requests, and prefix recovery after an unload/restart. I archived a working dual-GPU profile and turned model preparation, runtime assembly, and startup into scripts. I've published the recipe for people with similar hardware, and to have a configuration I can return to after the next experiment.
+The model could be loaded and occupying VRAM while the next turn still took minutes. Working through that led us through llama.cpp, SGLang, vLLM, TP/PP, native dynamic chunking, MTP, DFlash2/8, KV precision and disk-cache reloads. The retained dual-GPU configuration uses native vLLM DFlash2 and public HyperQwen patches.
 
 Repo: [YYTbit/qwen3.8-27b-3090](https://github.com/YYTbit/qwen3.8-27b-3090)
 
-**Hardware: two 24 GB RTX 3090s, no NVLink, and no CUDA peer access on this host.** The stack is vLLM 0.30 with native DFlash2, public HyperQwen patches, and LMCache. The target is an abliterated AWQ4 checkpoint with INT8 embeddings/output head and INT4 KV; the draft is DFlash2 W4A16. Model CPU offload is zero. Disk KV save/load uses host staging.
+[Full decision trail](https://github.com/YYTbit/qwen3.8-27b-3090/blob/main/docs/exploration.md) · [Result lineage and data](https://github.com/YYTbit/qwen3.8-27b-3090/tree/main/benchmarks/history)
 
-Results on an 18,649-token conversation:
+I've now archived the history too: eight campaigns, sanitized extracts of 247 surviving evidence artifacts, 236 distinct original SHA256 digests, and 41 curated CSV rows. Nested stages and summaries overlap, so those are file counts. Each result is mapped to its configuration, including the older custom-kernel branches that were later retired.
 
-| Workload | Result |
+A few observations changed the direction:
+
+- **Early prefill did not predict late prefill.** An older vLLM W4A8 PP2 profile reached 3,437 input tok/s in an early sampling window. In a completed 520,761-token history, the late-bin median fell to 363 tok/s and cold first token took about 797 seconds.
+- **A cache hit was not enough to establish usable next-turn speed.** The same old PP2 profile's follow-ups reused about 99.8% of the prefix, but first token still took 13–14 seconds and decode ran at 18–19 tok/s.
+- **Native dynamic chunking needed an actual completion check.** SGLang's calibration failed before the real request. Another launch summary's dynamic-chunk flag disagreed with its actual arguments; the archive records the correction. Same-first-prompt TP/PP observations retain their configuration gaps.
+- **Restoration needed its own measurements.** The selected profile was archived, restored and replayed, including independent reruns. The public scripts then assembled a separate checkpoint/runtime.
+
+The retained stack is the complete official vLLM 0.30 CUDA12.9 wheel with nine unchanged public HyperQwen patches, native DFlash2 and upstream LMCache. The target body is AWQ4, embeddings/output head are INT8, the draft is W4A16 and target KV is INT4. Model CPU offload is zero; disk KV save/load uses host staging.
+
+| Selected-profile evidence | Result |
 | --- | --- |
-| One warm stream, three runs of 1,024 output tokens | **153 tok/s median**, range 148–159 |
-| Independent archive restoration, same three-run workload | **151 tok/s median** |
-| Checkpoint/runtime rebuilt with the published scripts and reused Python dependencies | **145 tok/s median**, three warm runs of 1,024 outputs |
-| Five API requests submitted together | **56–69 tok/s per stream**; five running requests observed |
+| 18,649 input, one warm stream, three 1,024-output runs | **152.97 tok/s median** |
+| Independent archive restoration, same three-run request | **150.77 tok/s median** |
+| Later restoration, same three-run request | **145.50 tok/s median** |
+| Public-script assembly, separate 10.5 GiB KV/card budget | **144.66 tok/s median warm** |
+| Five replay requests, five running observed | **56.47–69.04 tok/s per stream** |
+| One actual unload/restart | 16,128 text-prefix tokens recovered externally; first thinking/text at 2.15 s |
 
-The headline runs reused 17,920 prefix tokens, about 96.1%. Rates include reasoning, and all three capped runs stopped during thinking. In the five-request run, four produced 1,024 tokens and one requested a tool after 311 tokens. Separately, the official Claude Code client completed a Read call and two conversation rounds. [Timing records](https://github.com/YYTbit/qwen3.8-27b-3090/blob/main/benchmarks/results.json) include the individual runs and conditions.
+The headline single-stream runs reused 17,920 prefix tokens, about 96.1%. Rates include reasoning, and all three capped runs stopped before answer text. Four five-client streams emitted 1,024 tokens; one requested a tool after 311. Complete Read-tool round trips and two real Claude Code turns were checked separately. Individual runs, first-answer timings and independent reruns are linked in the repository.
 
-One actual unload/restart recovered 16,128 tokens of a text prefix from disk, with the first thinking/text delta at 2.15 seconds. [Measurement notes](https://github.com/YYTbit/qwen3.8-27b-3090/blob/main/docs/measurements.md), patch hashes, and preparation scripts are included.
+**The measured headline uses the local 18.6k warm interactive profile.** The launcher configures a 1M per-request limit and five slots with a shared KV pool of about 1.32M tokens. Additional long-context, multi-client and multi-day cache measurements are on the reproduction roadmap.
 
-The server and Claude Code start independently. Connection settings apply to the client process, and the launcher leaves Claude Code and cc-switch configuration files untouched. English/Chinese setup docs cover pinned sources, environment reuse, and Chinese download mirrors.
+Inputs, precision and runtimes differ across the history. The ~150 headline belongs to the selected profile's measurements. Credit for algorithms/kernels goes to vLLM, HyperQwen, DFlash, LMCache and the relevant upstream projects; this repository packages the host-specific preparation, selection, restoration and evidence. English/Chinese setup docs include pinned sources, environment reuse and Chinese download mirrors.
 
-Credit for the inference algorithms and kernels goes to vLLM, HyperQwen, DFlash, LMCache, and the checkpoint authors. This repository packages the combination and measurements from this machine.
-
-If you have two 3090s, I'd like to compare reproductions, particularly on hosts without NVLink. GPU topology, actual context length, cache state, and each stream's speed would be useful. Feedback on installation would help make the recipe easier to reproduce. Star it if you'd like to follow the updates.
-
-## Distribution plan
-
-1. Start with an appropriate technical sharing category in club-3090 Discussions and a Chinese post in V2EX 分享创造. Identify your relationship to the recipe and credit upstream.
-2. Check each destination's current account eligibility, self-promotion, and AI-content rules. Disclose the assistance involved and use a permitted format. Record published URLs in the table above.
-3. Retain actual input length, warm-cache conditions, output lengths, reasoning-token accounting, and per-stream qualifiers when adapting the text. The README and measurement records provide the complete validation scope.
-4. Reply to reproduction questions and add third-party results with their hardware and workload conditions. Keep publication status separate from draft preparation.
+I'd welcome reproductions with actual context length, cache state, topology and each stream's rate. I hope the decision trail helps others choose the next useful experiment on similar hardware. Star the repo if you'd like to follow the work, or add a result from your machine.

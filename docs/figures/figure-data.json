@@ -1,0 +1,215 @@
+{
+  "decision_cards": [
+    [
+      "01 / REAL WORKLOAD",
+      "Start from the client",
+      "Resume an existing task\nImages, tools and follow-ups\nSeveral sessions, one service"
+    ],
+    [
+      "02 / FIT AND STARTUP",
+      "Check the GGUF path",
+      "llama.cpp Q4_K_M trials\nNear-1M configured limits\nAllocation + tiny-input logs"
+    ],
+    [
+      "03 / LONG HISTORY",
+      "Measure long-prefill decay",
+      "vLLM 0.23 W4A8 PP2\n520k prefill slowed late\nHigh hits, slow next-turn decode"
+    ],
+    [
+      "04 / SERVING CHOICES",
+      "Probe layout and speculation",
+      "SGLang TP/PP; dynamic gate\nMTP, DFlash2 and DFlash8\nPrecision and CUDA graph modes"
+    ],
+    [
+      "05 / LOCAL CONTROLS",
+      "Check matched candidates",
+      "Native 0.28 and 0.30 trials\nLegacy verification comparisons\nCustom branch later retired"
+    ],
+    [
+      "06 / RETAINED PROFILE",
+      "Select public upstream code",
+      "Native vLLM + DFlash2\nNine unchanged public patches\n18.6k warm median: 153 tok/s"
+    ],
+    [
+      "07 / RECOVERY EVIDENCE",
+      "Restore and reconstruct",
+      "Archive restores: 151 / 146\nSeparate assembly: 145 tok/s\nOne text-prefix disk reload"
+    ],
+    [
+      "08 / REUSABLE DEPLOYMENT",
+      "Share a recoverable recipe",
+      "Several clients, one server\nDisk-prefix reuse after reload\nPinned setup + timing records"
+    ]
+  ],
+  "prefill": [
+    {
+      "token_range": [
+        0,
+        100000
+      ],
+      "median_batch_tokens_per_s": 2449.010981870342,
+      "batch_count": 31
+    },
+    {
+      "token_range": [
+        100000,
+        200000
+      ],
+      "median_batch_tokens_per_s": 1054.1890062310135,
+      "batch_count": 32
+    },
+    {
+      "token_range": [
+        200000,
+        300000
+      ],
+      "median_batch_tokens_per_s": 685.9719721666247,
+      "batch_count": 32
+    },
+    {
+      "token_range": [
+        300000,
+        400000
+      ],
+      "median_batch_tokens_per_s": 510.65063645194743,
+      "batch_count": 32
+    },
+    {
+      "token_range": [
+        400000,
+        450000
+      ],
+      "median_batch_tokens_per_s": 420.6811659862476,
+      "batch_count": 16
+    },
+    {
+      "token_range": [
+        450000,
+        500000
+      ],
+      "median_batch_tokens_per_s": 385.0348425963097,
+      "batch_count": 16
+    },
+    {
+      "token_range": [
+        500000,
+        520761
+      ],
+      "median_batch_tokens_per_s": 363.02532108531045,
+      "batch_count": 8
+    }
+  ],
+  "sglang_layouts": [
+    {
+      "layout": "TP2",
+      "phases": [
+        {
+          "message_start_s": 4.413800290989457,
+          "input_usage": {
+            "input_tokens": 5224,
+            "output_tokens": 0
+          },
+          "first_delta_s": 4.415468794992194,
+          "last_delta_s": 87.0232869090105,
+          "output_tokens": 4096,
+          "stop_reason": "max_tokens",
+          "message_stop_s": 87.03680754700326,
+          "stream_generation_s": 82.6078181140183,
+          "decode_tokens_s": 49.57157922205296
+        },
+        {
+          "message_start_s": 88.38329442800023,
+          "input_usage": {
+            "input_tokens": 84,
+            "output_tokens": 0,
+            "cache_read_input_tokens": 5184
+          },
+          "first_delta_s": 88.38378575700335,
+          "last_delta_s": 117.93193306200556,
+          "output_tokens": 1542,
+          "stop_reason": "end_turn",
+          "message_stop_s": 117.94520396200824,
+          "stream_generation_s": 29.548147305002203,
+          "decode_tokens_s": 52.152169951417704
+        }
+      ],
+      "first_api_tokens_per_s": 49.57157922205296,
+      "weighted_tokens_per_s_excluding_continuation_prefill": 50.25145099454685
+    },
+    {
+      "layout": "PP2",
+      "phases": [
+        {
+          "message_start_s": 5.5073814729985315,
+          "input_usage": {
+            "input_tokens": 5224,
+            "output_tokens": 0
+          },
+          "first_delta_s": 5.509074980014702,
+          "last_delta_s": 146.8798114999954,
+          "output_tokens": 4096,
+          "stop_reason": "max_tokens",
+          "message_stop_s": 146.906216776988,
+          "stream_generation_s": 141.3707365199807,
+          "decode_tokens_s": 28.96639078782214
+        },
+        {
+          "message_start_s": 152.8101772989903,
+          "input_usage": {
+            "input_tokens": 4190,
+            "output_tokens": 0,
+            "cache_read_input_tokens": 5184
+          },
+          "first_delta_s": 152.81236487999558,
+          "last_delta_s": 181.5664279019984,
+          "output_tokens": 899,
+          "stop_reason": "end_turn",
+          "message_stop_s": 181.5810917209892,
+          "stream_generation_s": 28.75406302200281,
+          "decode_tokens_s": 31.23036905472608
+        }
+      ],
+      "first_api_tokens_per_s": 28.96639078782214,
+      "weighted_tokens_per_s_excluding_continuation_prefill": 29.349042664222647
+    }
+  ],
+  "restoration_groups": [
+    [
+      "Archived\nselection",
+      [
+        152.97072073477534,
+        159.1119872084979,
+        148.03236466171228
+      ]
+    ],
+    [
+      "Archive\nrestoration 1",
+      [
+        150.76708639980356,
+        142.67724378829448,
+        160.85022549921115
+      ]
+    ],
+    [
+      "Archive\nrestoration 2",
+      [
+        128.76586172129493,
+        147.8986804010983,
+        145.50317585619808
+      ]
+    ],
+    [
+      "Separate public\nscript assembly",
+      [
+        144.65548144016898,
+        145.0175076312564,
+        132.47329196245576
+      ]
+    ]
+  ],
+  "restoration_source_ids": [
+    "D008",
+    "D009",
+    "D010"
+  ]
+}

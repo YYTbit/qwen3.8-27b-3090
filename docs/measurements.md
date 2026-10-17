@@ -1,5 +1,7 @@
 # Measurement notes
 
+The [exploration report](exploration.md) and [result lineage](../benchmarks/history/lineage.json) cover earlier engines and experimental branches. Their rates retain their original definitions and are attributed separately from the current profile below.
+
 ## What the headline measures
 
 The original workload was a real Claude Code conversation with 18,649 input tokens. Its canonical SHA256 is recorded in [results.json](../benchmarks/results.json). The conversation is private and is not redistributed. The published numbers describe that workload; an exact public replay is unavailable.
@@ -35,16 +37,16 @@ The included timing tool starts clients together. It does not query engine sched
 5. Check readable answers and successful tool execution in the actual client. A high token counter does not establish correct output.
 6. Report input/output tokens, sampling, first thinking/text delta, first answer, each client's decode rate, peak GPU memory, and actual running requests.
 
-`scripts/cesu.py` saves metadata and a digest, not request or response text. It accepts local HTTP endpoints. Set `--ttft-limit 100` for a permitted cold run; warm acceptance checks use 10 s. A timeout closes that request. It does not shut down a shared server or establish that other clients were unaffected.
+`scripts/benchmark.py` saves metadata and a digest, not request or response text. It accepts local HTTP endpoints. Set `--ttft-limit 100` for a permitted cold run; warm acceptance checks use 10 s. A timeout closes that request. It does not shut down a shared server or establish that other clients were unaffected.
 
-## Unmet targets
+## Next measurement stage
 
 - Actual 1M cold prefill within 100 s.
 - Five concurrent 1M sessions, each decoding above 100 token/s.
 - Multi-day cache retention and 99% hit rates across realistic conversations.
 - Full long-context quality evaluation of the abliterated target and INT4 KV.
 
-The 120k cold multimodal request exceeded 100 s before its first token and was canceled. The best dual-GPU result cannot be extrapolated to 1M or five independent contexts.
+Record actual input length, cache state and each stream's rate for each new measurement. Historical request conditions remain in the exploration archive.
 
 ## Sampling record
 

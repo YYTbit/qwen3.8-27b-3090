@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "selected_family": "vllm030-native-dflash2-public-hyperqwen-tp2-b7167",
+  "rule": "Only explicitly selected-profile measurements belong to the final recipe. Shared engine/model names do not establish profile identity. Historical custom kernels, other quantization/layouts and partial patch stacks remain separate.",
+  "families": [
+    {
+      "family": "llama-gguf",
+      "summary_sections": [
+        "llama_cpp"
+      ],
+      "selected": false,
+      "reason": "GGUF Q4_K_M, optional Q4_0 MTP draft, tiny inputs, incomplete launch metadata"
+    },
+    {
+      "family": "sglang-mtp",
+      "summary_sections": [
+        "sglang_tp_pp"
+      ],
+      "selected": false,
+      "reason": "SGLang 0.5.19 W4A16/MTP; PP2 FP8 KV and historical compatibility adaptations; complete TP2 launch recovery unavailable"
+    },
+    {
+      "family": "sglang-dynamic-calibration",
+      "summary_sections": [
+        "dynamic_chunking"
+      ],
+      "selected": false,
+      "reason": "Native dynamic calibration failed before real request; no measured speed"
+    },
+    {
+      "family": "vllm023-w4a8-pp",
+      "summary_sections": [
+        "prefill_configurations",
+        "prefill_decay",
+        "completed_520k_history"
+      ],
+      "selected": false,
+      "reason": "vLLM 0.23 W4A8, static chunk tuning, no speculation in completed 520k run"
+    },
+    {
+      "family": "vllm023-short-speculation",
+      "summary_sections": [
+        "vllm023_candidates",
+        "speculation_candidates_20261015"
+      ],
+      "selected": false,
+      "reason": "Earlier MTP/DFlash integration, precision and graph candidates; not native 0.30 selected runtime"
+    },
+    {
+      "family": "native028-030-legacy-clients",
+      "summary_sections": [
+        "native028_030_client_runs",
+        "actual_five_client_trials"
+      ],
+      "selected": false,
+      "reason": "Older experimental KVarN/cache integration and changing real Claude contexts"
+    },
+    {
+      "family": "native030-custom-verification",
+      "summary_sections": [
+        "matched_legacy_vllm_controls",
+        "legacy_concurrency_and_120k"
+      ],
+      "selected": false,
+      "reason": "Historical locally authored verification kernel and cache branch; retired"
+    },
+    {
+      "family": "public-profile-candidates",
+      "summary_sections": [
+        "public_profile_evolution"
+      ],
+      "selected": false,
+      "reason": "Official packed, MQ3D subset, W4A8 activation and earlier batch-budget candidates; complete profiles differ"
+    },
+    {
+      "family": "long-history-experimental",
+      "summary_sections": [
+        "long_history_gates"
+      ],
+      "selected": false,
+      "reason": "Legacy sub-block/batch-prefill/API-process trials; no completed 520k decode"
+    },
+    {
+      "family": "vllm030-native-dflash2-public-hyperqwen-tp2-b7167",
+      "summary_sections": [
+        "selected_public_recipe.final_profile_real18k"
+      ],
+      "selected": true,
+      "reason": "AWQ4 body, INT8 embeddings/head, W4A16 draft, INT4 target KV, nine unchanged public patches, native DFlash2, batch7167, block1792"
+    },
+    {
+      "family": "selected-profile-restoration",
+      "public_artifact": "../results.json",
+      "selected": true,
+      "reason": "Independent restorations of the archived selected profile; retain all slower reruns"
+    },
+    {
+      "family": "portable-public-script-assembly",
+      "public_artifact": "../assembly-validation-20261017.json",
+      "selected": false,
+      "reason": "Same public algorithms, separate reconstructed checkpoint/runtime, fixed10.5GiB KV/card; its145tps belongs to this assembly"
+    }
+  ]
+}

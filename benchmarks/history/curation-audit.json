@@ -1,0 +1,28 @@
+{
+  "checked_at": "2026-10-17T05:47:57.715968+00:00",
+  "scope": "Dual-GPU publication data, attribution and static source review; no new inference requests were run.",
+  "source_files_checked": 247,
+  "all_original_source_digests_match": true,
+  "curated_rows": 41,
+  "selected_profile_rows": 3,
+  "selected_median_recomputed": 152.97072073477534,
+  "script_renaming_ast_equivalence": {
+    "benchmark.py": true,
+    "disk_cache.py": true,
+    "template_validator.py": true,
+    "server_entry.py": true,
+    "serve.py": true,
+    "prepare_model.py": true,
+    "prepare_runtime.py": true
+  },
+  "document_relative_links_resolve": true,
+  "public_names_use_english": true,
+  "publication_scope_is_dual_gpu": true,
+  "privacy_findings": 0,
+  "figures_visually_inspected": 4,
+  "report_tables": 8,
+  "editable_presentation_slides": 4,
+  "presentation_embedded_raster_images": 0,
+  "exact_private_workload_public_replay_available": false,
+  "errors": []
+}

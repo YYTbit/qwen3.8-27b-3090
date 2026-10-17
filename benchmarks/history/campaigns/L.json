@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "campaign": "Early llama.cpp GGUF trials",
+  "scope": "Surviving server timing and allocation records. Full build/launch metadata is incomplete; tiny-input generation is excluded from framework ranking.",
+  "source_files": 6,
+  "sources": [
+    {
+      "source_id": "L001",
+      "label": "q4-1m-mtp-cpu.log",
+      "original_sha256": "62e951697e139478fee7941fff1583f2c496e93819010fe6f681bacaac4308a8",
+      "original_bytes": 2026,
+      "metrics": {
+        "configured_context_tokens": 1000192,
+        "model_loaded": false,
+        "model_loading_error": true,
+        "cuda_allocation_failure": true,
+        "measurements": []
+      }
+    },
+    {
+      "source_id": "L002",
+      "label": "q4-1m-mtp-cpu2.log",
+      "original_sha256": "ca3c25bc3f8af060496dda9adee8a0a7d505b69bd3d40d2a5d0ff7ee5f6ef8c2",
+      "original_bytes": 3128,
+      "metrics": {
+        "configured_context_tokens": 1000192,
+        "model_loaded": true,
+        "model_loading_error": false,
+        "cuda_allocation_failure": false,
+        "measurements": [
+          {
+            "metric": "prefill",
+            "elapsed_ms": 412.31,
+            "tokens": 21,
+            "server_tokens_per_s": 50.93
+          },
+          {
+            "metric": "decode",
+            "elapsed_ms": 7369.24,
+            "tokens": 128,
+            "server_tokens_per_s": 17.23
+          }
+        ],
+        "draft_acceptance_fraction": 0.92135,
+        "mean_emitted_length": 2.82
+      }
+    },
+    {
+      "source_id": "L003",
+      "label": "q4-1m-mtp-ub32.log",
+      "original_sha256": "ab7702608f13803ddeaf612f7faf67122cb4e36c38929779bf6292baa3feb77c",
+      "original_bytes": 2416,
+      "metrics": {
+        "configured_context_tokens": 1000192,
+        "model_loaded": false,
+        "model_loading_error": true,
+        "cuda_allocation_failure": true,
+        "measurements": []
+      }
+    },
+    {
+      "source_id": "L004",
+      "label": "q4-1m-no-mtp.log",
+      "original_sha256": "94fc53706349e66d2a4d2a5d7eab0b75a34350279b5706b0a290338fa074eaf9",
+      "original_bytes": 3493,
+      "metrics": {
+        "configured_context_tokens": 1000192,
+        "model_loaded": true,
+        "model_loading_error": false,
+        "cuda_allocation_failure": false,
+        "measurements": [
+          {
+            "metric": "prefill",
+            "elapsed_ms": 224.19,
+            "tokens": 6,
+            "server_tokens_per_s": 26.76
+          },
+          {
+            "metric": "decode",
+            "elapsed_ms": 726.71,
+            "tokens": 31,
+            "server_tokens_per_s": 41.28
+          },
+          {
+            "metric": "prefill",
+            "elapsed_ms": 225.23,
+            "tokens": 21,
+            "server_tokens_per_s": 93.24
+          },
+          {
+            "metric": "decode",
+            "elapsed_ms": 3059.61,
+            "tokens": 128,
+            "server_tokens_per_s": 41.51
+          }
+        ]
+      }
+    },
+    {
+      "source_id": "L005",
+      "label": "q4-1m-test.log",
+      "original_sha256": "7f280f5f43083690ab162e3d804390177319c6c030b59c29b3c246a064dcff5d",
+      "original_bytes": 2806,
+      "metrics": {
+        "configured_context_tokens": 1000192,
+        "model_loaded": false,
+        "model_loading_error": true,
+        "cuda_allocation_failure": true,
+        "measurements": []
+      }
+    },
+    {
+      "source_id": "L006",
+      "label": "q4-1m-ub128.log",
+      "original_sha256": "431546ba4505ff1df95db47060f9a6bc5835feca4c1a826cf5faecaf0741cb2b",
+      "original_bytes": 2416,
+      "metrics": {
+        "configured_context_tokens": 1000192,
+        "model_loaded": false,
+        "model_loading_error": true,
+        "cuda_allocation_failure": true,
+        "measurements": []
+      }
+    }
+  ]
+}

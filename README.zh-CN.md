@@ -6,6 +6,8 @@
 
 仓库包含实测启动配置、按顺序固定的上游补丁、模型准备脚本、磁盘缓存配置及测速记录。目标模型使用去拒绝版本的 AWQ4 权重，embedding 和输出头为 INT8；草稿模型采用 DFlash2 W4A16。
 
+**[双卡完整探索故事](docs/exploration.zh-CN.md)**覆盖llama.cpp、SGLang、TP/PP、动态分块、MTP/DFlash、KV精度与缓存回载。[数据档案](benchmarks/history/README.md)包含247份留存证据文件的脱敏摘录、41行关键结果，并附[成绩与配置归属映射](benchmarks/history/lineage.json)。
+
 ## 实测结果
 
 | 场景 | 结果 | 测量范围 |
@@ -14,16 +16,23 @@
 | 独立归档恢复后，同配置重测 | 三轮中位数 **151 token/s** | 三轮范围 143–161 token/s |
 | 使用公开脚本新建权重和运行库 | 热缓存三轮中位数 **145 token/s** | 每卡10.5 GiB KV；18,649输入token；复用Python依赖 |
 | 五路同时请求 | **每路 56–69 token/s** | 引擎观测到五路运行，四路输出 1,024 token，一路输出 311 token 后调用工具 |
-| 热缓存首个思考或文本增量 | **0.80–0.91 秒** | 不等于正文开始时间 |
+| 热缓存首个思考或文本增量 | **0.80–0.91 秒** | 首个流式思考或文本 |
 | 一次卸载重启后的磁盘缓存回载 | 首个思考或文本增量 **2.15 秒** | 回载 16,128 token，验证了一个文本前缀 |
 | 真实 Claude Code 完整两轮对话 | **104 / 138 token/s** | Read 工具成功，两轮均正常结束 |
-| 120k-token 含图片冷输入 | 100 秒内没有首 token | 达到截止时间后取消 |
 
-[完整记录](benchmarks/results.json)保留后续恢复复测和未达成目标。速度包含思考 token；标题数据对应的三轮均在正文出现前达到 `max_tokens`。这些数据来自本机私有工作负载，不是公开排行榜或模型质量评测。
+[完整记录](benchmarks/results.json)保留逐次计时与恢复复测。标题回放的输出上限为1,024 token，速度包含思考；完整Claude Code回答与工具往返另行验收。使用的工作负载来自本机真实私有会话。
 
-[公开脚本组装验收](benchmarks/assembly-validation-20261017.json)使用独立的约1.23M-token共享KV池。热缓存命中16,128 token，首个思考或文本增量为2.07–2.08秒。真实Claude Code第一轮完成Read工具调用及回答，速度136 token/s，正文在37.68秒开始。下一轮期间，外部实验保护程序在82°C停止引擎，因此该轮不计为完整对话验收通过，持续负载稳定性仍未验证。便携启动器本身不包含该外部保护程序。
+[公开脚本组装验收](benchmarks/assembly-validation-20261017.json)使用独立的约1.23M-token共享KV池。热缓存命中16,128 token，首个思考或文本增量为2.07–2.08秒。真实Claude Code第一轮完成Read工具调用及回答，速度136 token/s，正文在37.68秒开始。完整运行条件见链接记录。
 
-**1M 是配置的上下文长度上限。实际 1M 性能、五路各超过 100 token/s、多日 99% 缓存命中均尚未验证。** GPU KV 池合计约 1.32M token，由请求共享，五个槽位不代表五份独立的 1M 上下文可以同时驻留。
+**标题成绩对应18,649个实际输入token和热前缀缓存。** 归档启动器配置1,048,576-token单请求上限与五个请求槽位，共享约1.32M-token GPU KV池。更长上下文和多客户端的测量列入后续复现计划。
+
+## 为什么保留这组配置
+
+长历史实测逐步明确了需要检查什么。早期vLLM W4A8 PP2的初期prefill窗口达到3437 token/s，但真实520k输入末段的批次速度中位数降到363。后续轮次原生前缀命中约99.8%，decode仍为18至19 token/s。这些成绩属于早期配置。
+
+[完整决策过程](docs/exploration.zh-CN.md)保留了SGLang并行方式观测、原生动态分块校准失败、投机与精度尝试，以及历史内核分支的同请求对照。最终回到原生DFlash2与九个原样公开补丁，用其自身的重复测量和归档恢复记录验证。早期自改内核的成绩另行标明；不同框架的测试条件存在差异，不据此宣称框架整体加速倍数。
+
+![最终双卡配置的完整探索决策路线](docs/figures/decision-trail.png)
 
 ## 技术栈
 
@@ -62,8 +71,8 @@ hf download syvai/Qwen3.8-27B-DFlash2-W4A16 \
 以下命令使用兼容环境中的 Python。模型脚本先复制源模型，再调用上游 CPU 量化脚本；需要预留新权重及量化备份的磁盘空间。
 
 ```bash
-python scripts/zhunbei_moxing.py --source weights/base --output weights/target-head8
-python scripts/zhunbei_yunxing.py \
+python scripts/prepare_model.py --source weights/base --output weights/target-head8
+python scripts/prepare_runtime.py \
   --wheel downloads/vllm-0.30.0+cu129-cp38-abi3-manylinux_2_28_x86_64.whl \
   --output runtime/tp2
 ```
@@ -75,7 +84,7 @@ python scripts/zhunbei_yunxing.py \
 ### 3. 启动模型
 
 ```bash
-python scripts/qidong.py --runtime runtime/tp2 \
+python scripts/serve.py --runtime runtime/tp2 \
   --target weights/target-head8 --draft weights/draft \
   --work-dir .local --gpus 0,1 --port 8000
 ```
@@ -104,30 +113,29 @@ env -u ANTHROPIC_API_KEY \
 将自己的 Anthropic Messages 请求保存为本地 JSON。测速脚本接受本机回环地址，仅保存用量和时间元数据，不保存提示词或回答正文。
 
 ```bash
-python scripts/cesu.py --request /path/to/your-request.json \
+python scripts/benchmark.py --request /path/to/your-request.json \
   --key-file .local/api-key --concurrency 5 \
   --ttft-limit 10 --total-limit 120 --output .local/results-five.json
 ```
 
 [测量说明](docs/measurements.md)解释冷、热缓存、逐路速度及正确性检查。原私有工作负载发布了请求摘要，不公开会话正文。
 
-## 缓存与长上下文边界
+## 缓存与上下文配置
 
-引擎运行期间，GPU 前缀缓存可复用已处理前缀。LMCache 将兼容的 KV 和状态对象保存到磁盘，卸载后可以回载。本配方未设置 TTL，并向上游配置 256 GiB LRU 存储。上游跨重启容量统计存在缺口，这不是跨重启严格容量保证。
+引擎运行期间，GPU前缀缓存可复用已处理前缀。LMCache将兼容的KV和状态对象保存到磁盘，卸载后可以回载。本配方向上游配置256 GiB LRU存储，未设置TTL。[缓存说明](docs/cache.md)记录命名空间、容量统计和重启行为。
 
-命中取决于前缀、模型、运行库布局一致，以及对应缓存块仍存在。去拒绝处理不代表安全性或智力得到保证，长上下文质量和 INT4 KV 的影响仍需单独评估。
+命中取决于前缀、模型、运行库布局一致，以及对应缓存块仍存在。后续复现计划包含长上下文质量和INT4 KV评估。
 
-多模态模型可以接收图片，但本次已验收的重启复用为文本。图片磁盘缓存、多日保留、多份独立 1M 会话和 1M 冷 prefill 延迟尚未通过端到端验证。[缓存及排障说明](docs/cache.md)记录更多细节。
+模型可以接收图片。本次记录的重启复用覆盖文本前缀，图片磁盘缓存与多日保留列入下一阶段验证。[缓存及排障说明](docs/cache.md)记录更多细节。
 
 ## 后续计划
 
 - [x] 归档、恢复双卡配置，保留原始测量结果。
 - [x] 发布中英双语说明、补丁摘要、模型准备及本地测速工具。
+- [x] 发布双卡探索档案、结果归属和完整决策故事。
 - [ ] 在其他机器验证干净环境安装。
-- [ ] 在**每卡 17 GiB**内改善四卡五并发性能。
 - [ ] 验证长上下文、多模态持久化和多日缓存复用。
 
-[四卡实验报告](docs/four-gpu.zh-CN.md)保留W4A8、分片采样和NUMA候选的失败结果及逐路记录。
 
 ## 参与复现
 

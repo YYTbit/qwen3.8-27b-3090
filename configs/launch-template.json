@@ -2,7 +2,7 @@
   "argv": [
     "PYTHON_EXECUTABLE",
     "-B",
-    "RECIPE_FILES/qwen-fast-entry.py",
+    "RECIPE_FILES/server_entry.py",
     "serve",
     "TARGET_MODEL",
     "--host",
@@ -107,6 +107,6 @@
     "The measured profile has no NCCL_ALGO or NCCL_PROTO override.",
     "The included entry wrapper starts LMCache MP and waits for health before inference. Keep the cache ports free.",
     "Read an API key from a local protected file into VLLM_API_KEY; no key is bundled.",
-    "Use scripts/zhunbei_moxing.py for the public upstream head8 CPU preparation; see its tensor audit."
+    "Use scripts/prepare_model.py for the public upstream head8 CPU preparation; see its tensor audit."
   ]
 }

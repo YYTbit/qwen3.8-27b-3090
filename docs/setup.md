@@ -87,7 +87,7 @@ The local build identified itself as `0.0.0+qwen.local20261015`. That tag is pro
 
 ## Checkpoint preparation
 
-The pinned target starts with an asymmetric AWQ4 body and BF16 heads. `zhunbei_moxing.py` copies it to a new directory and invokes the upstream `quant_heads_stream.py`. The source is preserved. Head and embedding quantization is symmetric INT8, group size 128; linear scales are FP16 and embedding scales BF16. MTP linears are INT8, although this DFlash profile does not use MTP.
+The pinned target starts with an asymmetric AWQ4 body and BF16 heads. `prepare_model.py` copies it to a new directory and invokes the upstream `quant_heads_stream.py`. The source is preserved. Head and embedding quantization is symmetric INT8, group size 128; linear scales are FP16 and embedding scales BF16. MTP linears are INT8, although this DFlash profile does not use MTP.
 
 The archived target configuration then supplies the same group assignments and YaRN factor 4 with original length 262,144. This sets a 1,048,576 limit; it does not prove accuracy or speed at that length. Quantizer backup files remain beside the prepared model for inspection and consume additional space.
 
@@ -97,6 +97,6 @@ Model preparation audit: [preparation-audit.json](../benchmarks/preparation-audi
 
 ## Start and connect
 
-Follow the commands in the main README. Keep the selected GPUs free of unrelated workloads: the measured two-GPU profile uses about 23.3 GiB per GPU. It is not the four-GPU 17 GiB candidate profile.
+Follow the commands in the main README. Keep the selected GPUs free of unrelated workloads: the measured two-GPU profile uses about 23.3 GiB per GPU.
 
 The launcher creates a local key and compilation/cache directories, then starts the server in the foreground. It sets process-local variables, binds to loopback, and writes no Claude settings. Use separate work directories and ports for independent servers. A server restart with the same prepared weights, runtime, and work directory retains its disk-cache namespace.

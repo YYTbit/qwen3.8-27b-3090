@@ -1,0 +1,1134 @@
+{
+  "schema_version": 1,
+  "campaign": "2026-10-15 isolated GPU 0/1 experiments",
+  "scope": "Baseline/shared verification and real history experiments. Source coverage is limited to surviving structured reports.",
+  "source_files": 11,
+  "sources": [
+    {
+      "source_id": "A001",
+      "label": "results/baseline-gpu/results.json",
+      "original_sha256": "bc6917629577665fad783fb390c7a73424ed6b14b7cebef2db2d76600a0f0b3f",
+      "original_bytes": 3003,
+      "metrics": {
+        "gpus": [
+          0,
+          1
+        ],
+        "server_port": 48565,
+        "options": {
+          "gpus": [
+            0,
+            1
+          ],
+          "context_tokens": 1048576,
+          "batched_tokens": 4351,
+          "draft_tokens": 7,
+          "disk_cache": false,
+          "profile_decode": true
+        },
+        "paid_provider_called": false,
+        "rounds": [
+          {
+            "round": 1,
+            "status": "cancelled",
+            "reason": "request deadline",
+            "elapsed_s": 240.00974464100727
+          }
+        ],
+        "profile": false,
+        "metrics_before": {},
+        "production_files_unchanged": {},
+        "production_pid_still_alive": false,
+        "experiment_service_kept_running": true
+      }
+    },
+    {
+      "source_id": "A002",
+      "label": "results/baseline-history120k/results.json",
+      "original_sha256": "247bbf2a732e9482b05d268b9025bab3af09387793ae9bcf2f01477ede4ef8f4",
+      "original_bytes": 890,
+      "metrics": {
+        "gpus": [
+          0,
+          1
+        ],
+        "output_cap": 1024,
+        "profile": false,
+        "options": {
+          "gpus": [
+            0,
+            1
+          ],
+          "context_tokens": 1048576,
+          "batched_tokens": 4351,
+          "draft_tokens": 7,
+          "disk_cache": false,
+          "profile_decode": true
+        },
+        "usage": {
+          "input_tokens": 119992,
+          "output_tokens": 0,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0
+        },
+        "status": "response_finished",
+        "http_status": 200,
+        "stop_reason": "end_turn",
+        "elapsed_s": 0.5256818079942605,
+        "first_thinking_or_text_s": null,
+        "first_answer_s": null,
+        "stream_tokens_per_s": null,
+        "production_files_unchanged": true,
+        "production_pid_still_alive": true
+      }
+    },
+    {
+      "source_id": "A003",
+      "label": "results/baseline-history120k-retry/results.json",
+      "original_sha256": "27e1ddf67ad0c731b82be9ae64af372792faadd666d24081efd324314d865bb5",
+      "original_bytes": 917,
+      "metrics": {
+        "gpus": [
+          0,
+          1
+        ],
+        "output_cap": 1024,
+        "profile": false,
+        "options": {
+          "gpus": [
+            0,
+            1
+          ],
+          "context_tokens": 1048576,
+          "batched_tokens": 4351,
+          "draft_tokens": 7,
+          "disk_cache": false,
+          "profile_decode": true
+        },
+        "usage": {
+          "input_tokens": 119992,
+          "output_tokens": 65,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0
+        },
+        "status": "response_finished",
+        "http_status": 200,
+        "stop_reason": "tool_use",
+        "elapsed_s": 86.75006651799777,
+        "first_thinking_or_text_s": 86.00949329099967,
+        "first_answer_s": null,
+        "stream_tokens_per_s": 126.72888645611111,
+        "production_files_unchanged": true,
+        "production_pid_still_alive": true
+      }
+    },
+    {
+      "source_id": "A004",
+      "label": "results/baseline-history120k-review/results.json",
+      "original_sha256": "f9851e001c79197477ef283a6a372c30d9a69612713cfbe3bfbfdd315c590051",
+      "original_bytes": 849,
+      "metrics": {
+        "gpus": [
+          0,
+          1
+        ],
+        "output_cap": 4096,
+        "profile": false,
+        "options": {
+          "gpus": [
+            0,
+            1
+          ],
+          "context_tokens": 1048576,
+          "batched_tokens": 4351,
+          "draft_tokens": 7,
+          "disk_cache": false,
+          "profile_decode": true
+        },
+        "usage": {},
+        "status": "failed_or_cancelled",
+        "http_status": 200,
+        "error": {},
+        "elapsed_s": 10.001310208012,
+        "first_thinking_or_text_s": null,
+        "first_answer_s": null,
+        "stream_tokens_per_s": null,
+        "production_files_unchanged": true,
+        "production_pid_still_alive": true
+      }
+    },
+    {
+      "source_id": "A005",
+      "label": "results/baseline-profile/kernel-summary.json",
+      "original_sha256": "f35f9660d24206b30d5b4a98a5995f895de0ba8abfef958275bb8fcc85818bfd",
+      "original_bytes": 45021,
+      "metrics": {
+        "summed_kernel_ms": 481.60246600000005,
+        "kernels": {
+          "_expand_idx_mapping_kernel": [
+            20,
+            25.632000000000005
+          ],
+          "_prepare_pos_seq_lens_kernel": [
+            20,
+            29.598000000000006
+          ],
+          "_combine_sampled_and_draft_tokens_kernel": [
+            20,
+            61.218
+          ],
+          "_gather_block_tables_kernel": [
+            20,
+            79.29800000000002
+          ],
+          "_compute_slot_mappings_kernel": [
+            20,
+            53.98599999999999
+          ],
+          "preprocess_mamba_align_fused_kernel": [
+            20,
+            36.22400000000001
+          ],
+          "precopy_mamba_align_fused_kernel": [
+            20,
+            48.705999999999996
+          ],
+          "triton_poi_fused_add_bitwise_and_bitwise_not_bitwise_or_ge_lt_mul_sub_0": [
+            20,
+            25.312000000000005
+          ],
+          "_dequant_gather_kernel": [
+            40,
+            63.519999999999996
+          ],
+          "_prepare_rope_positions_kernel": [
+            20,
+            62.24100000000001
+          ],
+          "triton_red_fused__to_copy_add_rms_norm_0": [
+            20,
+            53.536
+          ],
+          "triton_poi_fused_1": [
+            20,
+            23.553
+          ],
+          "triton_poi_fused_zeros_2": [
+            20,
+            18.244000000000007
+          ],
+          "_causal_conv1d_update_kernel": [
+            960,
+            3486.9029999999934
+          ],
+          "fused_sigmoid_gating_delta_rule_update_kernel": [
+            960,
+            12745.89699999999
+          ],
+          "memcpy32_post": [
+            1420,
+            1732.7289999999941
+          ],
+          "triton_per_fused__to_copy_mean_pow_view_0": [
+            960,
+            1510.6539999999868
+          ],
+          "triton_poi_fused__to_copy__unsafe_view_add_clone_marlin_gemm_mean_mul_pow_rsqrt_silu_view_1": [
+            960,
+            1670.0409999999938
+          ],
+          "triton_red_fused__to_copy_add_fused_add_rms_norm_marlin_gemm_2": [
+            960,
+            2737.1880000000024
+          ],
+          "triton_red_fused__to_copy_add_fused_add_rms_norm_3": [
+            640,
+            1937.6939999999986
+          ],
+          "triton_poi_fused_4": [
+            640,
+            684.1950000000006
+          ],
+          "triton_poi_fused_zeros_5": [
+            640,
+            582.5159999999983
+          ],
+          "triton_red_fused__to_copy_add_fused_add_rms_norm_marlin_gemm_3": [
+            320,
+            964.3820000000002
+          ],
+          "_fused_qk_rmsnorm_rope_gate_kernel": [
+            320,
+            799.7889999999999
+          ],
+          "_kvarn_scatter_store_kernel": [
+            320,
+            498.574
+          ],
+          "_kvarn_fused_decode_stage1": [
+            320,
+            66948.90400000002
+          ],
+          "_kvarn_fused_decode_stage2": [
+            320,
+            2819.358000000004
+          ],
+          "triton_poi_fused_marlin_gemm_mul_sigmoid_view_0": [
+            320,
+            415.39899999999886
+          ],
+          "triton_red_fused__to_copy_add_fused_add_rms_norm_marlin_gemm_1": [
+            320,
+            903.1929999999996
+          ],
+          "triton_red_fused__to_copy_add_fused_add_rms_norm_2": [
+            320,
+            970.8690000000006
+          ],
+          "triton_poi_fused_3": [
+            300,
+            354.2230000000009
+          ],
+          "triton_poi_fused_zeros_4": [
+            300,
+            272.9079999999993
+          ],
+          "_penalties_kernel": [
+            20,
+            657.138
+          ],
+          "_topk_topp_kernel": [
+            20,
+            5192.874
+          ],
+          "_topp_sb_stats_kernel": [
+            20,
+            35.616000000000014
+          ],
+          "_topp_sb_step_kernel": [
+            100,
+            142.1469999999999
+          ],
+          "_topp_sb_mask_kernel": [
+            20,
+            31.107000000000003
+          ],
+          "_compute_local_logits_stats_kernel": [
+            20,
+            481.9349999999999
+          ],
+          "_rejection_kernel": [
+            20,
+            151.781
+          ],
+          "_resample_kernel": [
+            20,
+            352.03799999999995
+          ],
+          "_insert_resampled_kernel": [
+            20,
+            66.81700000000002
+          ],
+          "_get_num_sampled_and_rejected_kernel": [
+            20,
+            56.77000000000001
+          ],
+          "_post_update_kernel": [
+            20,
+            82.59300000000002
+          ],
+          "_scatter_num_accepted_kernel": [
+            20,
+            25.47500000000001
+          ],
+          "postprocess_mamba_fused_kernel": [
+            20,
+            48.992999999999995
+          ],
+          "_prepare_dflash_inputs_kernel": [
+            20,
+            149.53699999999998
+          ],
+          "ampere_bf16_s16816gemm_bf16_64x64_sliced1x2_ldg8_f2f_stages_64x6_tn": [
+            20,
+            1343.9359999999997
+          ],
+          "triton_poi_fused_add_bitwise_and_bitwise_or_ge_lt_mul_sub_0": [
+            20,
+            37.43900000000001
+          ],
+          "triton_poi_fused_bitwise_and_bitwise_not_bitwise_or_ge_lt_masked_fill_unsqueeze_1": [
+            20,
+            21.668
+          ],
+          "triton_red_fused_mul_rms_norm_2": [
+            20,
+            42.177
+          ],
+          "ampere_s16816gemm_bf16_64x64_ldg8_stages_64x6_tn": [
+            200,
+            4066.0610000000042
+          ],
+          "triton_per_fused_4": [
+            20,
+            54.913
+          ],
+          "triton_per_fused_3": [
+            80,
+            173.89500000000004
+          ],
+          "memset32": [
+            20,
+            21.40700000000001
+          ],
+          "ampere_bf16_s16816gemm_bf16_64x64_ldg8_f2f_stages_64x5_tn": [
+            20,
+            140.03500000000003
+          ],
+          "triton_poi_fused__unsafe_view_cat_expand_index_mul_slice_unsqueeze_0": [
+            20,
+            28.576000000000008
+          ],
+          "triton_poi_fused_index_1": [
+            20,
+            28.092000000000006
+          ],
+          "triton_poi_fused_add_permute_unsqueeze_view_2": [
+            20,
+            20.993000000000013
+          ],
+          "_selector_walk_kernel": [
+            20,
+            184.164
+          ],
+          "_cache_draft_logits_kernel": [
+            20,
+            30.78400000000001
+          ],
+          "_suffix_lookup_kernel": [
+            20,
+            790.5160000000001
+          ],
+          "_fuse_draft_kernel": [
+            20,
+            38.718999999999994
+          ],
+          "_point_mass_draft_logits_kernel": [
+            20,
+            40.480999999999995
+          ],
+          "_zero_kv_blocks_kernel": [
+            1,
+            10.081
+          ],
+          "_apply_write_kernel": [
+            1,
+            3.808
+          ],
+          "_sinkhorn_log_kernel": [
+            32,
+            9018.090000000004
+          ]
+        }
+      }
+    },
+    {
+      "source_id": "A006",
+      "label": "results/baseline-profile/results.json",
+      "original_sha256": "67b6cbb17a54aebc3eaf32dada3b43af2c5a04ebe2d549e3fd5dc6951073b8fb",
+      "original_bytes": 1003,
+      "metrics": {
+        "gpus": [
+          0,
+          1
+        ],
+        "output_cap": 1024,
+        "profile": true,
+        "options": {
+          "gpus": [
+            0,
+            1
+          ],
+          "context_tokens": 1048576,
+          "batched_tokens": 4351,
+          "draft_tokens": 7,
+          "disk_cache": false,
+          "profile_decode": true
+        },
+        "usage": {
+          "input_tokens": 217,
+          "output_tokens": 1024,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 18432
+        },
+        "status": "response_finished",
+        "profile_start_status": 200,
+        "http_status": 200,
+        "stop_reason": "max_tokens",
+        "elapsed_s": 20.156981409003492,
+        "first_thinking_or_text_s": 0.3749453310010722,
+        "first_answer_s": null,
+        "stream_tokens_per_s": 51.71584462935565,
+        "profile_stop_status": 200,
+        "production_files_unchanged": true,
+        "production_pid_still_alive": true
+      }
+    },
+    {
+      "source_id": "A007",
+      "label": "results/baseline-repeat/results.json",
+      "original_sha256": "5cb721d52e74321bef9c8c5843cfe2cc7720ee8ce32e1ac06e63422e6e3c9f78",
+      "original_bytes": 943,
+      "metrics": {
+        "gpus": [
+          0,
+          1
+        ],
+        "output_cap": 1024,
+        "profile": false,
+        "options": {
+          "gpus": [
+            0,
+            1
+          ],
+          "context_tokens": 1048576,
+          "batched_tokens": 4351,
+          "draft_tokens": 7,
+          "disk_cache": false,
+          "profile_decode": true
+        },
+        "usage": {
+          "input_tokens": 217,
+          "output_tokens": 1024,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 18432
+        },
+        "status": "response_finished",
+        "http_status": 200,
+        "stop_reason": "max_tokens",
+        "elapsed_s": 8.137713713003905,
+        "first_thinking_or_text_s": 0.37878726299095433,
+        "first_answer_s": null,
+        "stream_tokens_per_s": 131.8671636550068,
+        "production_files_unchanged": true,
+        "production_pid_still_alive": true
+      }
+    },
+    {
+      "source_id": "A008",
+      "label": "results/shared-claude-bounded/results.json",
+      "original_sha256": "ed2c8faefefd01de61c99d297858ac5c6fcda689cd305d6aca097bfb4244c1bf",
+      "original_bytes": 3132,
+      "metrics": {
+        "gpus": [
+          0,
+          1
+        ],
+        "server_port": 48565,
+        "options": {
+          "gpus": [
+            0,
+            1
+          ],
+          "context_tokens": 1048576,
+          "batched_tokens": 4351,
+          "draft_tokens": 7,
+          "disk_cache": false,
+          "profile_decode": true
+        },
+        "paid_provider_called": false,
+        "rounds": [
+          {
+            "round": 1,
+            "status": "cancelled",
+            "reason": "request deadline",
+            "elapsed_s": 240.07008155398944
+          }
+        ],
+        "profile": false,
+        "metrics_before": {},
+        "production_files_unchanged": {},
+        "production_pid_still_alive": true,
+        "experiment_service_kept_running": true
+      }
+    },
+    {
+      "source_id": "A009",
+      "label": "results/shared-profile/kernel-summary.json",
+      "original_sha256": "bca429119f5d4eb99c921cd39fd4146aefa51bc55fcb4a8eb2d81bbdb5f5b13b",
+      "original_bytes": 65371,
+      "metrics": {
+        "GPU": {
+          "_zero_kv_blocks_kernel": [
+            5,
+            1400.125
+          ],
+          "_apply_write_kernel": [
+            5,
+            24.032999999999998
+          ],
+          "_prepare_prefill_inputs_kernel": [
+            4,
+            27.840999999999998
+          ],
+          "_prepare_pos_seq_lens_kernel": [
+            20,
+            30.179000000000006
+          ],
+          "_combine_sampled_and_draft_tokens_kernel": [
+            20,
+            85.186
+          ],
+          "_gather_block_tables_kernel": [
+            20,
+            105.377
+          ],
+          "_compute_slot_mappings_kernel": [
+            20,
+            69.53699999999999
+          ],
+          "preprocess_mamba_align_fused_kernel": [
+            20,
+            35.90500000000001
+          ],
+          "precopy_mamba_align_fused_kernel": [
+            20,
+            362.40599999999995
+          ],
+          "_sinkhorn_log_kernel": [
+            192,
+            105851.00999999997
+          ],
+          "triton_poi_fused_add_bitwise_and_bitwise_not_bitwise_or_ge_lt_mul_sub_0": [
+            20,
+            26.497
+          ],
+          "_dequant_gather_kernel": [
+            40,
+            231.58499999999998
+          ],
+          "_prepare_rope_positions_kernel": [
+            20,
+            109.47600000000001
+          ],
+          "triton_red_fused__to_copy_add_rms_norm_0": [
+            20,
+            364.422
+          ],
+          "ampere_bf16_s1688gemm_bf16_128x128_ldg8_f2f_stages_32x1_tn": [
+            144,
+            15460.666
+          ],
+          "triton_poi_fused_1": [
+            20,
+            28.129000000000005
+          ],
+          "triton_poi_fused_zeros_2": [
+            20,
+            97.73100000000002
+          ],
+          "_causal_conv1d_fwd_kernel": [
+            192,
+            17556.890000000003
+          ],
+          "_fused_post_conv_kernel": [
+            192,
+            15505.019999999995
+          ],
+          "chunk_local_cumsum_scalar_kernel": [
+            192,
+            796.5249999999993
+          ],
+          "chunk_scaled_dot_kkt_fwd_kernel": [
+            192,
+            7028.559000000001
+          ],
+          "merge_16x16_to_64x64_inverse_kernel": [
+            192,
+            23129.780000000002
+          ],
+          "recompute_w_u_fwd_kernel": [
+            192,
+            20220.34599999999
+          ],
+          "chunk_gated_delta_rule_fwd_kernel_h_blockdim64": [
+            192,
+            33014.687
+          ],
+          "chunk_fwd_kernel_o": [
+            192,
+            26139.298000000003
+          ],
+          "triton_per_fused__to_copy_mean_pow_view_0": [
+            960,
+            5832.895000000157
+          ],
+          "triton_poi_fused__to_copy__unsafe_view_add_clone_marlin_gemm_mean_mul_pow_rsqrt_silu_view_1": [
+            960,
+            14332.2479999999
+          ],
+          "triton_red_fused__to_copy_add_fused_add_rms_norm_marlin_gemm_2": [
+            960,
+            25517.228000000196
+          ],
+          "triton_red_fused__to_copy_add_fused_add_rms_norm_3": [
+            640,
+            29938.310999999947
+          ],
+          "triton_poi_fused_4": [
+            640,
+            776.720000000004
+          ],
+          "triton_poi_fused_zeros_5": [
+            640,
+            3126.3290000000475
+          ],
+          "triton_red_fused__to_copy_add_fused_add_rms_norm_marlin_gemm_3": [
+            320,
+            14805.997000000027
+          ],
+          "_fused_qk_rmsnorm_rope_gate_kernel": [
+            320,
+            8286.37600000001
+          ],
+          "ampere_fp16_s1688gemm_fp16_128x128_ldg8_f2f_stages_32x1_nn": [
+            192,
+            11660.096
+          ],
+          "_kvarn_scatter_store_kernel": [
+            320,
+            1450.3669999999947
+          ],
+          "_kvarn_build_packed_kv_kernel": [
+            64,
+            12853.878000000002
+          ],
+          "triton_poi_fused_marlin_gemm_mul_sigmoid_view_0": [
+            320,
+            4710.368999999963
+          ],
+          "triton_red_fused__to_copy_add_fused_add_rms_norm_marlin_gemm_1": [
+            320,
+            8516.007999999994
+          ],
+          "triton_red_fused__to_copy_add_fused_add_rms_norm_2": [
+            320,
+            14836.573000000008
+          ],
+          "triton_poi_fused_3": [
+            300,
+            424.5490000000004
+          ],
+          "triton_poi_fused_zeros_4": [
+            300,
+            1492.250999999998
+          ],
+          "_penalties_kernel": [
+            20,
+            1110.4190000000003
+          ],
+          "_topk_topp_kernel": [
+            20,
+            4707.058
+          ],
+          "_topp_sb_stats_kernel": [
+            20,
+            30.689000000000004
+          ],
+          "_topp_sb_step_kernel": [
+            100,
+            143.65299999999996
+          ],
+          "_topp_sb_mask_kernel": [
+            20,
+            30.943000000000005
+          ],
+          "_gumbel_sample_kernel": [
+            4,
+            86.723
+          ],
+          "_get_num_sampled_and_rejected_kernel": [
+            20,
+            70.46500000000002
+          ],
+          "_post_update_kernel": [
+            20,
+            72.99300000000001
+          ],
+          "_scatter_num_accepted_kernel": [
+            20,
+            25.185000000000006
+          ],
+          "postprocess_mamba_fused_kernel": [
+            20,
+            49.602999999999994
+          ],
+          "_prepare_dflash_inputs_kernel": [
+            20,
+            167.07299999999998
+          ],
+          "ampere_bf16_s16816gemm_bf16_256x128_ldg8_f2f_stages_32x3_tn": [
+            3,
+            6371.762999999999
+          ],
+          "triton_poi_fused_add_bitwise_and_bitwise_or_ge_lt_mul_sub_0": [
+            20,
+            38.339
+          ],
+          "triton_poi_fused_bitwise_and_bitwise_not_bitwise_or_ge_lt_masked_fill_unsqueeze_1": [
+            20,
+            21.56800000000001
+          ],
+          "triton_red_fused_mul_rms_norm_2": [
+            20,
+            41.91799999999999
+          ],
+          "ampere_s16816gemm_bf16_64x64_ldg8_stages_64x6_tn": [
+            200,
+            4072.9640000000027
+          ],
+          "triton_per_fused_4": [
+            20,
+            54.27400000000001
+          ],
+          "triton_per_fused_3": [
+            80,
+            171.83300000000006
+          ],
+          "memset32": [
+            20,
+            21.28200000000001
+          ],
+          "ampere_bf16_s16816gemm_bf16_64x64_ldg8_f2f_stages_64x5_tn": [
+            20,
+            139.39399999999998
+          ],
+          "triton_poi_fused__unsafe_view_cat_expand_index_mul_slice_unsqueeze_0": [
+            20,
+            28.415000000000006
+          ],
+          "triton_poi_fused_index_1": [
+            20,
+            27.648000000000007
+          ],
+          "triton_poi_fused_add_permute_unsqueeze_view_2": [
+            20,
+            20.80000000000001
+          ],
+          "_selector_walk_kernel": [
+            20,
+            185.21800000000002
+          ],
+          "_cache_draft_logits_kernel": [
+            20,
+            30.177000000000007
+          ],
+          "memcpy32_post": [
+            1140,
+            1421.6850000000018
+          ],
+          "_suffix_lookup_kernel": [
+            20,
+            1558.8450000000003
+          ],
+          "_fuse_draft_kernel": [
+            20,
+            38.593
+          ],
+          "_point_mass_draft_logits_kernel": [
+            20,
+            41.76
+          ],
+          "_expand_idx_mapping_kernel": [
+            16,
+            20.256
+          ],
+          "_causal_conv1d_update_kernel": [
+            768,
+            2745.6789999999937
+          ],
+          "fused_sigmoid_gating_delta_rule_update_kernel": [
+            768,
+            10074.514000000005
+          ],
+          "_kvarn_fused_verify_stage1": [
+            256,
+            34646.617999999966
+          ],
+          "_kvarn_fused_decode_stage2": [
+            256,
+            1776.8360000000014
+          ],
+          "_compute_local_logits_stats_kernel": [
+            16,
+            486.698
+          ],
+          "_rejection_kernel": [
+            16,
+            125.953
+          ],
+          "_resample_kernel": [
+            16,
+            723.1179999999999
+          ],
+          "_insert_resampled_kernel": [
+            16,
+            66.91300000000001
+          ],
+          "ampere_bf16_s16816gemm_bf16_64x64_sliced1x2_ldg8_f2f_stages_64x6_tn": [
+            16,
+            1073.012
+          ]
+        },
+        "CPU": {
+          "TorchDynamo Cache Lookup": [
+            20,
+            1064.191
+          ],
+          "Pregraph bytecode": [
+            24,
+            3236.6670000000004
+          ],
+          "AOTDispatcher Runtime Wrapper Prologue": [
+            280,
+            28370.774000000012
+          ],
+          "triton_poi_fused_add_bitwise_and_bitwise_not_bitwise_or_ge_lt_mul_sub_0": [
+            20,
+            1515.2160000000001
+          ],
+          "triton_red_fused__to_copy_add_rms_norm_0": [
+            4,
+            227.407
+          ],
+          "triton_poi_fused_1": [
+            4,
+            144.57299999999998
+          ],
+          "triton_poi_fused_zeros_2": [
+            4,
+            92.737
+          ],
+          "ChunkGatedDeltaRuleFunction": [
+            192,
+            2548994.330999999
+          ],
+          "triton_per_fused__to_copy_mean_pow_view_0": [
+            192,
+            80021.99
+          ],
+          "triton_poi_fused__to_copy__unsafe_view_add_clone_marlin_gemm_mean_mul_pow_rsqrt_silu_view_1": [
+            192,
+            69274.87299999999
+          ],
+          "triton_red_fused__to_copy_add_fused_add_rms_norm_marlin_gemm_2": [
+            192,
+            110878.38100000001
+          ],
+          "triton_red_fused__to_copy_add_fused_add_rms_norm_3": [
+            128,
+            74044.329
+          ],
+          "triton_poi_fused_4": [
+            128,
+            56862.76500000003
+          ],
+          "triton_poi_fused_zeros_5": [
+            128,
+            42237.60099999999
+          ],
+          "triton_red_fused__to_copy_add_fused_add_rms_norm_marlin_gemm_3": [
+            64,
+            20702.992
+          ],
+          "_fused_qk_rmsnorm_rope_gate_kernel_0": [
+            64,
+            25320.243000000006
+          ],
+          "triton_poi_fused_marlin_gemm_mul_sigmoid_view_0": [
+            64,
+            55240.146
+          ],
+          "triton_red_fused__to_copy_add_fused_add_rms_norm_marlin_gemm_1": [
+            64,
+            90714.22099999996
+          ],
+          "triton_red_fused__to_copy_add_fused_add_rms_norm_2": [
+            64,
+            76045.86199999996
+          ],
+          "triton_poi_fused_3": [
+            60,
+            55148.274999999994
+          ],
+          "triton_poi_fused_zeros_4": [
+            60,
+            31170.549999999996
+          ],
+          "cudaEventQuery": [
+            1312,
+            25447.029999999984
+          ],
+          "cudaStreamIsCapturing": [
+            2102,
+            6460.514999999995
+          ],
+          "cudaMemcpyAsync": [
+            2347,
+            269196.3249999997
+          ],
+          "cudaEventRecordWithFlags": [
+            511,
+            4971.206000000002
+          ],
+          "cudaLaunchKernel": [
+            13871,
+            1045961.006999995
+          ],
+          "cudaPointerGetAttributes": [
+            229,
+            2935.054
+          ],
+          "cudaStreamSynchronize": [
+            832,
+            5444977.372000001
+          ],
+          "cudaStreamGetCaptureInfo_v2": [
+            1104,
+            13076.193999999994
+          ],
+          "cudaStreamWaitEvent": [
+            1676,
+            33013.641999999985
+          ],
+          "cudaEventRecord": [
+            1656,
+            25317.518999999993
+          ],
+          "cudaGetFuncBySymbol": [
+            552,
+            4284.365000000004
+          ],
+          "cudaDeviceGetAttribute": [
+            4689,
+            35036.35799999997
+          ],
+          "cudaFuncSetAttribute": [
+            4212,
+            71173.74199999997
+          ],
+          "cudaMemsetAsync": [
+            145,
+            39201.97100000001
+          ],
+          "cudaOccupancyMaxActiveBlocksPerMultiprocessor": [
+            167,
+            9397.674
+          ],
+          "cudaPeekAtLastError": [
+            256,
+            198.60499999999996
+          ],
+          "cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags": [
+            64,
+            977.2810000000004
+          ],
+          "cudaGraphLaunch": [
+            36,
+            266780.0
+          ],
+          "cudaEventSynchronize": [
+            20,
+            222472.31100000005
+          ],
+          "cudaDeviceSynchronize": [
+            1,
+            10125.903
+          ]
+        }
+      }
+    },
+    {
+      "source_id": "A010",
+      "label": "results/shared-profile/results.json",
+      "original_sha256": "9e4047efc7f367525d92a747390f137a77063c344a8bee5d046ed9f3a551c4df",
+      "original_bytes": 1127,
+      "metrics": {
+        "gpus": [
+          0,
+          1
+        ],
+        "output_cap": 1024,
+        "profile": true,
+        "options": {
+          "gpus": [
+            0,
+            1
+          ],
+          "context_tokens": 1048576,
+          "batched_tokens": 4351,
+          "draft_tokens": 7,
+          "disk_cache": false,
+          "profile_decode": true
+        },
+        "usage": {
+          "input_tokens": 18649,
+          "output_tokens": 1024,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0
+        },
+        "status": "response_finished",
+        "profile_start_status": 200,
+        "http_status": 200,
+        "stop_reason": "max_tokens",
+        "elapsed_s": 127.78612214200257,
+        "first_thinking_or_text_s": 30.49894125199353,
+        "first_answer_s": null,
+        "stream_tokens_per_s": 10.515417398701553,
+        "profile_stop_status": 200,
+        "production_files_unchanged": true,
+        "production_pid_still_alive": true
+      }
+    },
+    {
+      "source_id": "A011",
+      "label": "results/shared-repeat/results.json",
+      "original_sha256": "08e69eb57885b3a164ddbeebd805fc2f76dd3eced05a827acce51acf7f891521",
+      "original_bytes": 1071,
+      "metrics": {
+        "gpus": [
+          0,
+          1
+        ],
+        "output_cap": 1024,
+        "profile": false,
+        "options": {
+          "gpus": [
+            0,
+            1
+          ],
+          "context_tokens": 1048576,
+          "batched_tokens": 4351,
+          "draft_tokens": 7,
+          "disk_cache": false,
+          "profile_decode": true
+        },
+        "usage": {
+          "input_tokens": 3417,
+          "output_tokens": 1024,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 15232
+        },
+        "status": "response_finished",
+        "http_status": 200,
+        "stop_reason": "max_tokens",
+        "elapsed_s": 10.777180051998585,
+        "first_thinking_or_text_s": 2.6990295969881117,
+        "first_answer_s": null,
+        "stream_tokens_per_s": 126.65177957155971,
+        "production_files_unchanged": true,
+        "production_pid_still_alive": true
+      }
+    }
+  ]
+}

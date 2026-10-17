@@ -1,0 +1,42 @@
+case,engine,scenario,input_tokens,output_tokens,cached_tokens,ttft_s,decode_tokens_per_s,status,source_id,metric,belongs_to_selected_profile
+q4-1m-mtp-cpu.log,llama.cpp,startup/MTP allocation trial,,,,,,startup_failed,L001,source-reported rate; see summary.json,False
+q4-1m-mtp-cpu2.log:1,llama.cpp,legacy tiny-input trial; full launch unknown,21,128,,,17.23,server_timing_only,L002,llama.cpp server eval timing,False
+q4-1m-mtp-ub32.log,llama.cpp,startup/MTP allocation trial,,,,,,startup_failed,L003,source-reported rate; see summary.json,False
+q4-1m-no-mtp.log:1,llama.cpp,legacy tiny-input trial; full launch unknown,6,31,,,41.28,server_timing_only,L004,llama.cpp server eval timing,False
+q4-1m-no-mtp.log:2,llama.cpp,legacy tiny-input trial; full launch unknown,21,128,,,41.51,server_timing_only,L004,llama.cpp server eval timing,False
+q4-1m-test.log,llama.cpp,startup/MTP allocation trial,,,,,,startup_failed,L005,source-reported rate; see summary.json,False
+q4-1m-ub128.log,llama.cpp,startup/MTP allocation trial,,,,,,startup_failed,L006,source-reported rate; see summary.json,False
+sglang-TP2-api1,SGLang 0.5.19,same first paper prompt,5224,4096,0,4.415468794992194,49.57157922205296,max_tokens,S016,N / first-to-last delta interval,False
+sglang-TP2-api2,SGLang 0.5.19,divergent continuation,5268,1542,5184,,52.152169951417704,end_turn,S016,N / first-to-last delta interval,False
+sglang-PP2-api1,SGLang 0.5.19,same first paper prompt,5224,4096,0,5.509074980014702,28.96639078782214,max_tokens,S016,N / first-to-last delta interval,False
+sglang-PP2-api2,SGLang 0.5.19,divergent continuation,9374,899,5184,,31.23036905472608,end_turn,S016,N / first-to-last delta interval,False
+vllm023-520k-round1,vLLM 0.23 W4A8 PP2,actual 520k history and continuations,520761,2377,0,797.1015481979994,21.48202757897881,finished,S036,source server decode timing; cold/warm TTFT recorded separately,False
+vllm023-520k-round2,vLLM 0.23 W4A8 PP2,actual 520k history and continuations,523234,1687,522144,12.908842448989162,18.380638640970133,finished,S036,source server decode timing; cold/warm TTFT recorded separately,False
+vllm023-520k-round3,vLLM 0.23 W4A8 PP2,actual 520k history and continuations,525005,2737,523712,14.074072805000469,18.792487235080586,finished,S036,source server decode timing; cold/warm TTFT recorded separately,False
+mtp1,vLLM 0.23,historical short Claude paper question,5199,4096,,5.648365755012492,24.493138402649983,failed_or_incomplete,S031,first API N / first-to-last delta interval; whole-turn weighted rate is in summary,False
+mtp3,vLLM 0.23,historical short Claude paper question,5199,3755,,6.275339067011373,42.65565986763956,completed_turn,S031,first API N / first-to-last delta interval; whole-turn weighted rate is in summary,False
+mtp3-probabilistic,vLLM 0.23,historical short Claude paper question,5203,4096,,3.608019407984102,59.467170889236655,completed_turn,S031,first API N / first-to-last delta interval; whole-turn weighted rate is in summary,False
+mtp5,vLLM 0.23,historical short Claude paper question,5199,4096,,5.038428386993473,42.70532042521142,completed_turn,S031,first API N / first-to-last delta interval; whole-turn weighted rate is in summary,False
+dflash2-gpu1-short,vLLM 0.23,historical short Claude paper question,5204,4096,,7.212919063982554,80.56590230946478,completed_turn,S008,first API N / first-to-last delta interval; whole-turn weighted rate is in summary,False
+dflash2-w4-head8-splitkv,vLLM 0.23,historical short Claude paper question,,,,,,failed_or_incomplete,S008,first API N / first-to-last delta interval; whole-turn weighted rate is in summary,False
+mtp3-head8-vocab-splitkv,vLLM 0.23,historical short Claude paper question,5206,4096,,5.678754613996716,66.82211289889183,completed_turn,S008,first API N / first-to-last delta interval; whole-turn weighted rate is in summary,False
+dflash2-tp2-k7-ssm16,vLLM 0.23,historical short Claude paper question,5175,4096,,4.7354059950012015,82.22599927817309,completed_turn,P035,first API N / first-to-last delta interval; whole-turn weighted rate is in summary,False
+dflash2-tp2-k7-w4a8,vLLM 0.23,historical short Claude paper question,,,,,,failed_or_incomplete,P035,first API N / first-to-last delta interval; whole-turn weighted rate is in summary,False
+dflash2-tp2-profile,vLLM 0.23,historical short Claude paper question,5169,4096,,3.1942516190028982,67.90072089058812,completed_turn,P035,first API N / first-to-last delta interval; whole-turn weighted rate is in summary,False
+dflash8-w4a16-fused,vLLM 0.23,historical short Claude paper question,,,,,,failed_or_incomplete,P035,first API N / first-to-last delta interval; whole-turn weighted rate is in summary,False
+official-int4-real18k-20261016:1,vLLM 0.30,real18k; whole profiles differ,18649,1024,0,41.70431557399934,32.73209416352207,response_finished,D080,(N-1) / first-to-last delta interval,False
+official-packed-warm18k-20261016:1,vLLM 0.30,real18k; whole profiles differ,18649,1024,16128,5.0104298049991485,24.09606697484613,response_finished,D082,(N-1) / first-to-last delta interval,False
+hyperqwen-mq3d-real18k-20261016:1,vLLM 0.30,real18k; whole profiles differ,18649,1024,0,33.43562408100115,50.617910362518444,response_finished,D072,(N-1) / first-to-last delta interval,False
+hyperqwen-mq3d-warm18k-20261016:1,vLLM 0.30,real18k; whole profiles differ,18649,1024,16128,3.765976913000486,58.840568369560266,response_finished,D073,(N-1) / first-to-last delta interval,False
+hyperqwen-mq3d-warm18k-20261016:2,vLLM 0.30,real18k; whole profiles differ,18649,1024,16128,3.7572568340001453,92.21392127126778,response_finished,D073,(N-1) / first-to-last delta interval,False
+hyperqwen-int8-real18k-20261016:1,vLLM 0.30,real18k; whole profiles differ,18649,1024,0,8.238144540002395,122.27695872120051,response_finished,D069,(N-1) / first-to-last delta interval,False
+hyperqwen-int8-warm18k-20261016:1,vLLM 0.30,real18k; whole profiles differ,18649,1024,16128,1.6676831690019753,139.2446790640361,response_finished,D070,(N-1) / first-to-last delta interval,False
+hyperqwen-int8-warm18k-20261016:2,vLLM 0.30,real18k; whole profiles differ,18649,1024,16128,1.5806818880009814,133.90558594500936,response_finished,D070,(N-1) / first-to-last delta interval,False
+hyperqwen-int8-warm18k-20261016:3,vLLM 0.30,real18k; whole profiles differ,18649,1024,16128,1.5825738340026874,123.32190241165301,response_finished,D070,(N-1) / first-to-last delta interval,False
+hyperqwen-fast-real18k-20261016:1,vLLM 0.30,real18k; whole profiles differ,18649,1024,0,11.904980170998897,125.81912360415676,response_finished,D058,(N-1) / first-to-last delta interval,False
+hyperqwen-fast-warm18k-20261016:1,vLLM 0.30,real18k; whole profiles differ,18649,1024,16128,2.1432711009983905,134.81125893006737,response_finished,D059,(N-1) / first-to-last delta interval,False
+hyperqwen-fast-warm18k-20261016:2,vLLM 0.30,real18k; whole profiles differ,18649,1024,16128,2.0661131020024186,155.38808685587588,response_finished,D059,(N-1) / first-to-last delta interval,False
+hyperqwen-fast-warm18k-20261016:3,vLLM 0.30,real18k; whole profiles differ,18649,1024,16128,2.0745787660016504,149.18414772656425,response_finished,D059,(N-1) / first-to-last delta interval,False
+selected-public-warm:1,vLLM 0.30 + public HyperQwen + native DFlash2,selected TP2 warm 18.6k; reasoning only at cap,18649,1024,17920,0.9082841510025901,152.97072073477534,max_tokens,D007,(N-1) / first-to-last delta interval,True
+selected-public-warm:2,vLLM 0.30 + public HyperQwen + native DFlash2,selected TP2 warm 18.6k; reasoning only at cap,18649,1024,17920,0.8041122709983028,159.1119872084979,max_tokens,D007,(N-1) / first-to-last delta interval,True
+selected-public-warm:3,vLLM 0.30 + public HyperQwen + native DFlash2,selected TP2 warm 18.6k; reasoning only at cap,18649,1024,17920,0.8010200359967712,148.03236466171228,max_tokens,D007,(N-1) / first-to-last delta interval,True

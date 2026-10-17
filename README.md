@@ -6,6 +6,8 @@ A local Claude Code serving recipe using vLLM's native DFlash2 path and public H
 
 The repository includes the measured launch profile, ordered upstream patches, checkpoint preparation, persistent-cache setup, and timing records. The target is an abliterated AWQ4 checkpoint with INT8 embeddings and output head; the draft is DFlash2 W4A16.
 
+**[Read the dual-GPU exploration story](docs/exploration.md):** llama.cpp, SGLang, TP/PP, dynamic chunking, MTP/DFlash, KV precision and cache reloads. The [archive](benchmarks/history/README.md) contains 247 surviving evidence artifacts and 41 curated result rows, with [explicit result-to-profile mapping](benchmarks/history/lineage.json).
+
 ## Results
 
 | Workload | Result | Scope |
@@ -14,16 +16,23 @@ The repository includes the measured launch profile, ordered upstream patches, c
 | Same profile restored from archive | **151 token/s median**, three runs | 143–161 token/s |
 | Checkpoint/runtime assembled with the published scripts | **145 token/s median**, three warm runs | 10.5 GiB KV/card; 18,649 input tokens; reused Python dependencies |
 | Five simultaneous streams | **56–69 token/s per stream** | Engine observed five running; four 1,024-token outputs and one 311-token tool call |
-| Warm time to first thinking/text delta | **0.80–0.91 s** | Not time to the final answer |
+| Warm time to first thinking/text delta | **0.80–0.91 s** | First streamed reasoning/text |
 | One unload/restart with disk cache | **2.15 s** to first thinking/text delta | 16,128 external-cache tokens recovered; one verified text prefix |
 | Real Claude Code, complete two-round conversation | **104 / 138 token/s** | Read tool succeeded; both rounds ended normally |
-| 120k-token cold input with images | No first token within 100 s | Canceled at the deadline |
 
-Full records, including the later restoration conversation and failed targets, are in [benchmarks/results.json](benchmarks/results.json). Rates include thinking tokens. The three headline runs reached `max_tokens` before answer text appeared. These are local observations on a private workload, not a public leaderboard or a quality evaluation.
+Individual runs and restoration measurements are in [benchmarks/results.json](benchmarks/results.json). Rates include reasoning, with a 1,024-token output cap for the headline replays. Complete Claude Code answers and tool round trips are measured separately. The workload is a real private conversation from the recorded host.
 
-The [public-script assembly check](benchmarks/assembly-validation-20261017.json) used a separate 1.23M-token shared KV pool. Warm first thinking/text took 2.07–2.08 s with 16,128 cached tokens. A real Claude Code round completed a Read tool call and an answer at 136 token/s; answer text began at 37.68 s. During the next round, an external experiment guard stopped the engine at 82°C. That round is excluded from complete-conversation acceptance, and sustained-load stability remains unverified. The portable launcher does not include that external guard.
+The [public-script assembly](benchmarks/assembly-validation-20261017.json) uses a separate 1.23M-token shared KV pool. Warm first thinking/text took 2.07–2.08 s with 16,128 cached tokens. A real Claude Code round completed a Read tool call and an answer at 136 token/s; answer text began at 37.68 s. The linked record includes the complete run conditions.
 
-**1M is the configured context limit. Actual 1M performance, five streams each above 100 token/s, and multi-day 99% cache hits remain unverified.** The shared GPU KV pool is about 1.32M tokens; five slots do not provide five independent resident 1M contexts.
+**Measured headline: 18,649 actual input tokens with a warm prefix.** The archived launcher configures a 1,048,576-token per-request limit and five request slots, backed by a shared GPU KV pool of about 1.32M tokens. Further long-context and multi-client measurements are on the reproduction roadmap.
+
+## Why this configuration
+
+The long-history runs changed what needed measuring. An earlier vLLM W4A8 PP2 configuration reached a 3,437 token/s early prefill window, but completed-batch medians fell to 363 token/s near the end of a real 520k input. Its follow-ups hit about 99.8% of the prefix and still decoded at 18–19 token/s. Those results belong to that earlier profile.
+
+SGLang layout observations, native dynamic-chunk calibration failures, speculation/precision trials and matched historical kernel controls are retained in the [decision trail](docs/exploration.md). The selected profile returns to native DFlash2 and nine unchanged public patches, with its own repeat and restoration evidence. Historical custom-kernel results remain separately labeled. Cross-engine conditions differ, so this repository makes no general framework speedup claim.
+
+![The decision trail behind the retained dual-3090 profile](docs/figures/decision-trail.png)
 
 ## Stack
 
@@ -62,8 +71,8 @@ hf download syvai/Qwen3.8-27B-DFlash2-W4A16 \
 Use the Python executable from your compatible environment. The model step copies the source before running the upstream CPU quantizer. Allow space for the new checkpoint and its backups.
 
 ```bash
-python scripts/zhunbei_moxing.py --source weights/base --output weights/target-head8
-python scripts/zhunbei_yunxing.py \
+python scripts/prepare_model.py --source weights/base --output weights/target-head8
+python scripts/prepare_runtime.py \
   --wheel downloads/vllm-0.30.0+cu129-cp38-abi3-manylinux_2_28_x86_64.whl \
   --output runtime/tp2
 ```
@@ -75,7 +84,7 @@ Model preparation audit: [preparation-audit.json](benchmarks/preparation-audit.j
 ### 3. Start the model
 
 ```bash
-python scripts/qidong.py --runtime runtime/tp2 \
+python scripts/serve.py --runtime runtime/tp2 \
   --target weights/target-head8 --draft weights/draft \
   --work-dir .local --gpus 0,1 --port 8000
 ```
@@ -104,30 +113,28 @@ These environment variables apply to that process. The launcher writes no Claude
 Export a shareable Anthropic Messages request as a local JSON file. The timing tool accepts loopback endpoints and saves usage/timing metadata without prompt or response text.
 
 ```bash
-python scripts/cesu.py --request /path/to/your-request.json \
+python scripts/benchmark.py --request /path/to/your-request.json \
   --key-file .local/api-key --concurrency 5 \
   --ttft-limit 10 --total-limit 120 --output .local/results-five.json
 ```
 
 See [measurement details](docs/measurements.md) for cold versus warm runs, per-stream reporting, and correctness checks. A private request fingerprint is published with the original results; the underlying conversation is excluded.
 
-## Cache and long-context limits
+## Caching and context configuration
 
-GPU prefix cache avoids repeated prefill while the engine stays loaded. LMCache saves compatible KV/state objects to disk and can reload them after an unload. The recipe has no configured TTL and requests a 256 GiB LRU disk store. The upstream store's accounting across restarts is incomplete, so this is not a strict cross-restart capacity guarantee.
+GPU prefix cache avoids repeated prefill while the engine stays loaded. LMCache saves compatible KV/state objects to disk and reloads them after an unload. The recipe requests a 256 GiB LRU disk store without a configured TTL. [Cache notes](docs/cache.md) describe namespace identity, capacity accounting and restart behavior.
 
-Cache reuse depends on an identical prefix, model/runtime layout, and available cached blocks. Abliteration does not imply a safety or intelligence guarantee. Long-context quality and the effect of INT4 KV need separate evaluation.
+Cache reuse depends on an identical prefix, model/runtime layout, and available cached blocks. The reproduction roadmap includes long-context quality and INT4 KV evaluation.
 
-Image inputs can use the multimodal model, but the verified restart result covers text. Multimodal disk-cache reuse, multi-day retention, independent 1M sessions, and 1M cold-prefill latency have not passed end-to-end validation. See [cache behavior and troubleshooting](docs/cache.md).
+The model accepts image inputs. The recorded restart measurement covers a text prefix; multimodal disk-cache reuse and multi-day retention are included in the next validation stage. See [cache behavior and troubleshooting](docs/cache.md).
 
 ## Roadmap
 
 - [x] Archive and restore the dual-GPU profile and retain measured results.
 - [x] Publish bilingual documentation, public patch hashes, model preparation, and a local timing tool.
+- [x] Publish the exploration archive, configuration lineage, failed paths and bilingual decision story.
 - [ ] Validate installation from a fresh environment on another host.
-- [ ] Improve four-GPU, five-stream performance within **17 GiB per GPU**.
 - [ ] Validate long-context performance, multimodal persistence, and multi-day cache reuse.
-
-See the [four-GPU experiment report](docs/four-gpu.md) for rejected W4A8, batch-sharded sampling, and NUMA candidates, including individual stream results.
 
 ## Contributing
 
