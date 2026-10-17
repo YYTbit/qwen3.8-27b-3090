@@ -24,5 +24,6 @@
   "editable_presentation_slides": 4,
   "presentation_embedded_raster_images": 0,
   "exact_private_workload_public_replay_available": false,
-  "errors": []
+  "errors": [],
+  "renaming_baseline_commit": "f259f5c989ef43a5971c9b77c532e8e48f2d6a12"
 }
