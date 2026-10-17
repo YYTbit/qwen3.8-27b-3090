@@ -22,7 +22,7 @@
 
 原环境保留了 vLLM **0.28 的发行元数据**，通过 `PYTHONPATH` 加载独立解包的 **0.30 完整运行库及其原生扩展**。本仓库重建完整运行库。[environment.json](../benchmarks/environment.json)保留了这一区别，不能简单将 `pip freeze` 的 0.28 当成实测引擎版本。
 
-## 优先复用已有环境
+## 已有环境复用
 
 本机已使用公开脚本重新准备权重和运行库，并复用现有Python依赖，完成真实请求及一轮完整的Claude Code Read工具对话。随后一轮恰逢实验保护程序在82°C停机。[组装验收记录](../benchmarks/assembly-validation-20261017.json)保留这些结果；这次验收不包含依赖从零安装或持续负载稳定性。
 
@@ -30,7 +30,7 @@
 
 官方 0.30 wheel 声明依赖 `compressed-tensors==0.17.0`、`flashinfer-python==0.6.18.post1`，本机复用环境实际为 0.18.0 和 0.6.18。这里明确保留差异，避免把工作环境清单误写成依赖解析一定成功的安装配方。
 
-## 下载官方 wheel
+## 官方 Wheel
 
 已有相同文件可以直接复用。官方地址为：
 
@@ -50,7 +50,7 @@ e98cb69659bfcfc849cf11ce0781a7161d40b02b51a6c3636924a5909f2aabcc
 
 国内可尝试在原地址前添加 `https://ghfast.top/`，但下载后仍要核对上述摘要。Python 包优先使用清华源 `https://pypi.tuna.tsinghua.edu.cn/simple`，模型优先使用 `https://hf-mirror.com`。
 
-## 新环境安装起点
+## 独立环境安装
 
 以下路径**尚未完成干净机器从零验收**。建议单独建环境，保留现有工作环境。
 
@@ -66,7 +66,7 @@ python3.13 -m venv .venv
 
 随后安装下述 LMCache。原生扩展还需要兼容的 CUDA toolkit 和编译器。如果无法获得兼容依赖，可提交脱敏的环境信息，不要用实验覆盖正在工作的生产环境。
 
-## 固定 LMCache 源码
+## LMCache 源码
 
 实测使用未修改的上游源码快照。到 [v0.1.0 Release](https://github.com/YYTbit/qwen3.8-27b-3090/releases/tag/v0.1.0) 下载 `LMCache-dev-b026def84282.tar.gz`，摘要为：
 
@@ -85,7 +85,7 @@ python -m pip install --no-build-isolation scratch/lmcache/LMCache-dev \
 
 本机构建显示版本为 `0.0.0+qwen.local20261015`，这是本机构建标识，不是可以到 PyPI 下载的上游发行号。MP connector 和 `lmcache.cli.main server` 按上游实现使用。
 
-## 模型准备
+## 权重准备
 
 固定来源包含非对称 AWQ4 主体及 BF16 输出头。准备脚本先复制到新目录，再调用上游 `quant_heads_stream.py`，不修改源模型。输出头与 embedding 使用 group128 对称 INT8，线性层 scale 为 FP16，embedding scale 为 BF16。MTP 线性层为 INT8，但本配方的 DFlash 不使用 MTP。
 
@@ -95,7 +95,7 @@ python -m pip install --no-build-isolation scratch/lmcache/LMCache-dev \
 
 [模型准备核对](../benchmarks/preparation-audit.json)显示，所有非 MTP 张量与实测模型的形状、类型、原始字节 SHA256 一致。省略的三个辅助 MTP 草稿输出头张量不参与原生 DFlash2；GPU集成验收范围以审计记录为准。
 
-## 启动与连接
+## 服务与客户端配置
 
 按照主README操作。双卡实测约用23.3 GiB/卡，需要先确认所选卡没有其他负载。
 

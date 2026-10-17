@@ -1,19 +1,19 @@
-# Exploration figures
+# Evaluation Figures
 
 **[English report](../exploration.md) | [中文报告](../exploration.zh-CN.md)**
 
-Four figures support the dual-GPU decision story. Tables in the report retain configuration and acceptance details; the figures show the route through the experiments, context-dependent prefill, layout observations and individual restoration runs.
+Four figures summarize the dual-GPU evaluation, covering configuration selection, long-context prefill, SGLang parallelism, and archive restoration. The report tables provide configuration details and measurement conditions.
 
 | Figure | Preview | Vector exports |
 | --- | --- | --- |
-| Decision trail | [PNG](decision-trail.png) | [SVG](decision-trail.svg), [PDF](decision-trail.pdf) |
-| 520k prefill profile | [PNG](prefill-decay.png) | [SVG](prefill-decay.svg), [PDF](prefill-decay.pdf) |
-| SGLang same-prompt observations | [PNG](sglang-layout.png) | [SVG](sglang-layout.svg), [PDF](sglang-layout.pdf) |
-| Restoration observations | [PNG](restoration-runs.png) | [SVG](restoration-runs.svg), [PDF](restoration-runs.pdf) |
+| Evaluation overview | [PNG](decision-trail.png) | [SVG](decision-trail.svg), [PDF](decision-trail.pdf) |
+| Long-context prefill scaling | [PNG](prefill-decay.png) | [SVG](prefill-decay.svg), [PDF](prefill-decay.pdf) |
+| SGLang parallelism evaluation | [PNG](sglang-layout.png) | [SVG](sglang-layout.svg), [PDF](sglang-layout.pdf) |
+| Archive restoration and reconstruction | [PNG](restoration-runs.png) | [SVG](restoration-runs.svg), [PDF](restoration-runs.pdf) |
 
 Download the [four-page PDF collection](dual-gpu-exploration.pdf) and [editable PowerPoint](dual-gpu-exploration.pptx). The presentation contains four slides built from editable shapes and text, with no embedded raster images. [Figure data](figure-data.json) is generated from the published measurement records and editorial decision cards.
 
-## Regenerate
+## Figure Generation
 
 With Matplotlib installed:
 

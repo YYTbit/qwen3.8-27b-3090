@@ -1,36 +1,43 @@
-# Cache behavior and troubleshooting
+# Cache Configuration
 
-## Storage layout
+## Storage Layout
 
-`--work-dir` contains the API key, compilation caches, generated LMCache configuration, logs, and `kv-cache/<namespace>/objects`. It is ignored by Git. Keep this directory on a volume with adequate space.
+`--work-dir` contains the API key, compilation caches, generated LMCache configuration, logs, and `kv-cache/<namespace>/objects`. The directory is excluded from Git.
 
-- GPU prefix cache is live engine state and disappears when the engine exits.
-- LMCache disk objects survive an engine stop and can be loaded by a compatible later run.
-- Model weights stay on disk. Stopping the service releases its GPU allocation; it does not delete weight files.
-- The configuration requests no TTL and 256 GiB LRU storage. Eviction and storage availability still matter. The upstream implementation's accounting after restart does not cover all old files; monitor actual disk usage separately.
-- Host RAM is used for cache I/O staging. Model inference and active attention KV remain on GPUs; CPU model offload is zero.
-
-The generated namespace includes the runtime manifest, launch profile, template, model JSON and weight-file identity. Changing those inputs creates a separate namespace. Keep each checkpoint and runtime layout in its generated namespace.
-
-## Verified and pending
-
-One text prefix was saved, the server unloaded, and 16,128 tokens recovered from disk on restart. Multimodal persistence, multi-day retention, and cache behavior under concurrent requests are the next validation steps. Verify readable content and normal draft acceptance when checking a cache reload.
-
-## Common errors
-
-| Symptom | Check |
+| Storage | Lifecycle |
 | --- | --- |
-| `auto tool choice requires...` | Both `--enable-auto-tool-choice` and `--tool-call-parser qwen3_xml` are in the recorded profile. |
-| `Unexpected item type in content` | Keep the provided chat template. It handles Claude text/image/tool-reference forms; old templates can reject newer blocks. |
-| Image input unsupported | Use the complete multimodal checkpoint and processor files, not a text-only export. This profile uses the native model, not GGUF/mmproj. |
-| vLLM version or extension mismatch | Use the full prepared runtime, including `.so` files. Inspect its module path as well as package metadata. |
-| No model in Claude `/model` | The process must point to the local endpoint and use the explicit served-model name. This recipe does not rewrite global model menus. |
-| Disk cache port occupied | Choose unused `--cache-port` and `--cache-http-port`; the latter also uses its next port. |
-| Slow first response after a cold start | A configured 1M limit does not precompute 1M tokens. Inspect actual input length and cache hits. |
-| Generated repetitions or unreadable output | Stop that request, preserve diagnostics, and isolate the cache namespace. Do not call it a successful speed result. |
+| GPU prefix cache | Live engine state; released when the engine exits |
+| LMCache disk objects | Persist across service restarts for compatible configurations |
+| Model weights | Remain on disk after the service stops |
+| Host staging buffers | Used during disk-cache save/load |
 
-## Memory budget
+Model inference and active attention KV remain on GPU, with CPU model offload set to zero.
 
-The published TP2 profile uses about 23.3 GiB per 24 GB card. The portable launcher sets a 10.5 GiB KV budget per card to reserve workspace. Available capacity is shared by the active requests.
+## Retention Policy
 
-Five request slots share one pool of roughly 1.32M GPU KV tokens. Prefix sharing can reduce repeated storage, but five unrelated 1M contexts require substantially more memory. Cache on disk does not make GPU capacity unlimited.
+The configuration requests **256 GiB of LRU disk storage with no TTL**. Retention depends on available storage and eviction. Upstream capacity accounting after restart can omit older files, so filesystem usage requires separate monitoring.
+
+Cache namespaces include the runtime manifest, launch profile, chat template, model JSON, and weight-file identity. Changes to these inputs create a separate namespace, preserving compatibility between stored objects and the active configuration.
+
+## Persistence Validation
+
+One text prefix was saved and recovered after a full unload/restart: **16,128 externally cached tokens**, zero GPU prefix hits, and **2.15 s** to the first thinking/text delta. Validation includes readable output and draft acceptance. Multi-day retention, multimodal persistence, and concurrent cache behavior remain evaluation tasks.
+
+## Capacity
+
+The archived TP2 profile allocated approximately **23.3 GiB per GPU**, with a shared GPU KV pool of approximately **1.32M tokens**. The portable launcher instead reserves **10.5 GiB of KV per GPU** for a pool of approximately **1.23M tokens**, leaving workspace headroom.
+
+Five request slots share the active KV pool. Identical prefixes can share storage; admission of unrelated contexts depends on their combined active KV requirements. Disk persistence provides reuse across restarts, while active requests use the available GPU capacity.
+
+## Troubleshooting
+
+| Symptom | Configuration check |
+| --- | --- |
+| `auto tool choice requires...` | Include both `--enable-auto-tool-choice` and `--tool-call-parser qwen3_xml`. |
+| `Unexpected item type in content` | Use the supplied chat template for Claude text, image, and tool-reference content. |
+| Image input unsupported | Use the complete multimodal checkpoint and processor files. The selected runtime uses the native model. |
+| vLLM version or extension mismatch | Use the complete prepared runtime, including native libraries, and inspect the effective module path. |
+| Model absent from Claude `/model` | Point the client to the local endpoint and specify the served-model name explicitly. |
+| Disk-cache port occupied | Select available `--cache-port` and `--cache-http-port` values; the HTTP service also uses the next port. |
+| High cold-start response latency | Inspect actual input length, cache state, and compilation status. |
+| Repetition or unreadable output | Cancel the request, retain diagnostics, and isolate the cache namespace for investigation. |

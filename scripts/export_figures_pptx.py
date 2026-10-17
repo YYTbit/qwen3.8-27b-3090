@@ -15,7 +15,7 @@ presentation.slide_width = Inches(13.4)
 presentation.slide_height = Inches(7)
 presentation.core_properties.author = 'YYTbit'
 presentation.core_properties.last_modified_by = 'YYTbit'
-presentation.core_properties.title = 'Dual-3090 Qwen exploration figures'
+presentation.core_properties.title = 'Qwen3.8-27B Dual-GPU Performance Evaluation'
 
 
 def rgb(value):
@@ -64,8 +64,8 @@ def add_slide(title, subtitle):
     return slide
 
 
-slide = add_slide('The decision trail behind the retained dual-3090 profile',
-    'Fit, client behavior, long-prefill decay, speculation, correctness and restoration each shaped the next experiment.')
+slide = add_slide('Dual-GPU Evaluation Overview',
+    'Engine compatibility, context scaling, speculative decoding and deployment validation')
 positions = [(0.02 + i * 0.25, 0.51) for i in range(4)] + [(0.02 + i * 0.25, 0.15) for i in [3, 2, 1, 0]]
 for i, ((x, y), (tag, title, body)) in enumerate(zip(positions, figure_data['decision_cards'])):
     a, b = 13.4 * x, 7 * (1 - y - 0.295)
@@ -88,7 +88,7 @@ for i, ((x, y), (tag, title, body)) in enumerate(zip(positions, figure_data['dec
         add_shape(slide, a - 0.33, b + 0.97, 0.24, 0.11, '64748B', shape_type=MSO_SHAPE.LEFT_ARROW)
 add_text(slide, 0.4, 6.48, 12.4, 0.36, 'Campaigns overlap. Results retain their configurations. Headline: 18,649 actual input tokens, warm prefix, rates include reasoning.', 10.6)
 
-slide = add_slide('Prefill across a real 520k-token history',
+slide = add_slide('Long-Context Prefill Scaling',
     'vLLM 0.23 W4A8 PP2 | Median completed-batch prefill rate by processed-token range')
 x0, y0, w, h = 1.05, 5.35, 11.85, 3.45
 for v in [0, 500, 1000, 1500, 2000, 2500]:
@@ -108,7 +108,7 @@ add_text(slide, 0.45, 1.47, 5, 0.23, 'Input tokens / second', 11.5)
 add_text(slide, 5.2, 5.86, 4.5, 0.25, 'Processed prompt tokens', 12)
 add_text(slide, 0.45, 6.31, 12.4, 0.45, 'Actual input: 520,761 tokens. First batch excluded. The 3,437 tok/s early window uses a different metric. Source: S038.', 10.6)
 
-slide = add_slide('Same first paper prompt, different SGLang layouts',
+slide = add_slide('SGLang Parallelism Evaluation',
     'SGLang 0.5.19 + MTP | 5,224 input / 4,096 output tokens | One observation per layout')
 x0, w = 1.35, 10.9
 for v in range(0, 61, 10):
@@ -124,7 +124,7 @@ for i, v in enumerate(figure_data['sglang_layouts']):
 add_text(slide, 3.9, 5.85, 7.0, 0.28, 'Output tokens / second, including reasoning', 12)
 add_text(slide, 0.45, 6.33, 12.4, 0.45, 'PP2: AWQ W4A16, FP8 KV, historical backports. Complete TP2 launch recovery is unavailable. Source: S016.', 10.6)
 
-slide = add_slide('Repeated measurements of the retained profile',
+slide = add_slide('Archive Restoration and Reconstruction',
     '18,649 input / 1,024 output tokens | Three observations per group | Rates include reasoning')
 x0, y0, w, h = 1.05, 5.25, 11.75, 3.4
 add_shape(slide, x0 + 3 * w / 4, y0 - h, w / 4, h, 'F1F5F9')

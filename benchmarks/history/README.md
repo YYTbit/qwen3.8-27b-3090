@@ -1,10 +1,10 @@
-# Exploration data
+# Evaluation Dataset
 
 **[English report](../../docs/exploration.md) | [中文报告](../../docs/exploration.zh-CN.md)**
 
-This archive contains **247 surviving source artifacts, 236 distinct original SHA256 digests, eight campaigns, and 41 curated CSV rows**. These are artifact counts. Reports, nested stages and later summaries overlap, so they are not counts of independent experiments or statistical replicates.
+The archive contains **247 source artifacts, 236 distinct original SHA256 digests, eight campaigns, and 41 curated CSV rows**. Artifact counts include overlapping reports and nested stages; statistical replication is recorded per measurement group.
 
-## Start here
+## Dataset Index
 
 | File | Contents |
 | --- | --- |
@@ -23,27 +23,27 @@ This archive contains **247 surviving source artifacts, 236 distinct original SH
 | [B.json](campaigns/B.json) | 16 real five-client and 120k-history reports |
 | [D.json](campaigns/D.json) | 127 matched-control, native DFlash, recovery, restoration and dual-GPU restoration reports |
 
-## Reading the records
+## Record Format
 
-Every source has a stable ID within this snapshot, a logical label, an original-byte SHA256 and a `metrics` tree. The original source files remain private. Numeric, boolean and null fields are retained with selected categorical fields; prompts, outputs, credentials, session/message IDs, environment dumps and private absolute paths are excluded. This is a measurement extract, not a byte-identical raw-log release. Source fingerprints identify the private original; they do not make its workload publicly replayable.
+Each source has a snapshot-stable ID, logical label, original-byte SHA256, and `metrics` tree. Extracts retain numeric, boolean, null, and selected categorical fields. Original files and private conversation content remain local. Source fingerprints identify the original records; public reproduction uses independently supplied workloads.
 
-The current recipe's complete pinned launch remains in [launch-template.json](../../configs/launch-template.json). Historical launch recovery is partial, and some old trials used local compatibility adaptations or custom kernels. Archiving their results does not install those branches or make them part of the selected nine-public-patch profile.
+The selected configuration is pinned in [launch-template.json](../../configs/launch-template.json). Historical launch metadata is partially recovered. Compatibility adaptations, experimental kernels, and the selected nine-public-patch profile have separate entries in [lineage.json](lineage.json).
 
-## Curation decisions
+## Curation Rules
 
 - `S013`: SGLang native dynamic-chunk calibration failed before any real request. Its speed is unmeasured, represented by missing/null rates.
 - The static PP launch summary inherited `native_dynamic_chunking=true`. Its actual argument list lacks `--enable-dynamic-chunking`, and its performance report says false. [Recovered flags](configurations.json) preserve both facts; the curated report labels that run static.
 - `S016`: use the first API phase for the TP2/PP2 observation. Both have 5,224 input and 4,096 output tokens. Complete TP2 launch recovery is unavailable, so other configuration effects are unresolved. Subsequent continuation inputs differ.
 - `S036`: the completed 520k-history rates are from **vLLM W4A8 PP2**, even though a later SGLang report quotes them as historical references.
 - `S038`: prefill decay uses medians of completed-batch rates within processed-token ranges, excluding the first batch. The 3,437 token/s early-window measurement is a different metric.
-- `D001`: historical matched custom-kernel controls are retained, including a candidate with output differences. They are not the final public recipe.
-- `E`: exact configuration linkage is incomplete. Some tiny-prompt/synthetic diagnostics report misleadingly high rates, including a 64-output warmup at 877 token/s. These are excluded from accepted results and all promotional claims. They are kept here to make the exclusion visible.
+- `D001`: historical custom-kernel controls include output-equality checks and a candidate with output differences. These records belong to the archived experimental branch.
+- `E`: configuration linkage is incomplete. Tiny-prompt and synthetic diagnostics, including a 64-output warmup at 877 token/s, are classified as diagnostic records and excluded from accepted performance summaries.
 - Historical API-phase rates often use `N / delta_time`; current capped replays use `(N-1) / delta_time`. Values are preserved as reported. The difference matters particularly for very short outputs.
 - Historical API-phase event times are relative to the complete client turn. Continuation first-delta timestamps are not per-request TTFT, so their CSV `ttft_s` cells are left empty.
-- `max_tokens` can stop during reasoning. A completed HTTP stream is not evidence of a completed answer. `max_running=5` is distinct from submitting five clients or configuring five slots.
-- Missing performance is not zero performance. A canceled first-token gate yields no decode sample. Post-cancellation survivor rates do not establish sustained five-stream throughput.
+- Output-capped streams, complete answers, configured slots, submitted clients, and engine-observed running requests are recorded as separate fields.
+- Canceled first-token gates use null decode values. Sustained concurrent measurements require the stated number of active streams throughout the measurement window.
 
-## Rebuild the figures
+## Figure Generation
 
 With an existing Matplotlib environment:
 
@@ -51,6 +51,6 @@ With an existing Matplotlib environment:
 python scripts/render_figures.py
 ```
 
-This reads the archived JSON and redraws the decision diagram plus three measurement figures. It sends no inference requests. SVG and PDF exports accompany the README-compatible PNGs in [docs/figures](../../docs/figures).
+The renderer reads the archived JSON and generates the evaluation overview and three measurement figures. PNG previews, SVG, and PDF exports are available in [docs/figures](../../docs/figures).
 
 An [editable PowerPoint and PDF collection](../../docs/figures/README.md) is also included.

@@ -1,62 +1,63 @@
-# 双 RTX 3090 部署 Qwen3.8-27B
+# Qwen3.8-27B 双 RTX 3090 部署
 
 **[English](README.md) | [简体中文](README.zh-CN.md)**
 
-用于本地 Claude Code 的推理配方，采用 vLLM 原生 DFlash2 和 HyperQwen 公开补丁。在没有 NVLink、CUDA peer access 不可用的两张 RTX 3090 上，真实 18.6k-token 会话的**热缓存单路 decode 中位数为 153 token/s**。独立归档恢复后重测，中位数为 **151 token/s**。
+面向 Claude Code 的本地 Qwen3.8-27B 部署方案，采用 **vLLM、原生 DFlash2 和 HyperQwen 公开补丁**。在无 NVLink 的双 RTX 3090 上，18.6k 输入、热缓存单路 decode 的中位数达到 **153 token/s**；从独立归档恢复后复测达到 **151 token/s**。
 
-仓库包含实测启动配置、按顺序固定的上游补丁、模型准备脚本、磁盘缓存配置及测速记录。目标模型使用去拒绝版本的 AWQ4 权重，embedding 和输出头为 INT8；草稿模型采用 DFlash2 W4A16。
+[环境配置](docs/setup.zh-CN.md) · [性能评测](docs/exploration.zh-CN.md) · [测量方法](docs/measurements.md) · [缓存配置](docs/cache.md) · [版本发布](https://github.com/YYTbit/qwen3.8-27b-3090/releases)
 
-**[双卡完整探索故事](docs/exploration.zh-CN.md)**覆盖llama.cpp、SGLang、TP/PP、动态分块、MTP/DFlash、KV精度与缓存回载。[数据档案](benchmarks/history/README.md)包含247份留存证据文件的脱敏摘录、41行关键结果，并附[成绩与配置归属映射](benchmarks/history/lineage.json)。
+## 功能特性
 
-## 实测结果
+- **Claude Code 接入**：通过原生 Anthropic 接口处理文本、图片和工具内容。
+- **原生投机解码**：使用 DFlash2、7 个投机 token 和标准拒绝采样。
+- **前缀缓存与磁盘持久化**：集成 GPU 前缀缓存和上游 LMCache。
+- **独立服务管理**：多个客户端共用服务，连接设置限定于当前进程。
+- **完整部署资料**：提供固定配置、权重准备脚本、上游补丁及评测档案。
 
-| 场景 | 结果 | 测量范围 |
+## 性能表现
+
+| 工作负载 | 结果 | 测量条件 |
 | --- | --- | --- |
-| 18,649 输入 token，热缓存单路 | 三轮中位数 **153 token/s** | 每轮输出 1,024 token，包含思考 |
-| 独立归档恢复后，同配置重测 | 三轮中位数 **151 token/s** | 三轮范围 143–161 token/s |
-| 使用公开脚本新建权重和运行库 | 热缓存三轮中位数 **145 token/s** | 每卡10.5 GiB KV；18,649输入token；复用Python依赖 |
-| 五路同时请求 | **每路 56–69 token/s** | 引擎观测到五路运行，四路输出 1,024 token，一路输出 311 token 后调用工具 |
-| 热缓存首个思考或文本增量 | **0.80–0.91 秒** | 首个流式思考或文本 |
-| 一次卸载重启后的磁盘缓存回载 | 首个思考或文本增量 **2.15 秒** | 回载 16,128 token，验证了一个文本前缀 |
-| 真实 Claude Code 完整两轮对话 | **104 / 138 token/s** | Read 工具成功，两轮均正常结束 |
+| 热缓存单路 | 中位数 **153 token/s** | 18,649 输入，三次各输出 1,024 token |
+| 独立归档恢复 | 中位数 **151 token/s** | 相同请求与选定配置，三次测量 |
+| 公开脚本重建 | 中位数 **145 token/s** | 相同输入，独立的每卡 10.5 GiB KV 配置 |
+| 五路同时请求 | **每路 56–69 token/s** | 观测到五路运行；四路输出 1,024 token，一路 311 token 后调用工具 |
+| 热缓存首个思考或文本增量 | **0.80–0.91 秒** | 选定配置，单路请求 |
+| 重启后磁盘缓存回载 | 首个思考或文本增量 **2.15 秒** | 验证一个文本前缀，回载 16,128 token |
+| Claude Code 完整对话 | **104 / 138 token/s** | 两个完整轮次，Read 工具调用成功 |
 
-[完整记录](benchmarks/results.json)保留逐次计时与恢复复测。标题回放的输出上限为1,024 token，速度包含思考；完整Claude Code回答与工具往返另行验收。使用的工作负载来自本机真实私有会话。
+单路测量命中 17,920 个前缀 token，速度包含思考，输出上限为 1,024 token。完整回答和工具往返另行测量。[逐次结果](benchmarks/results.json)与[重建记录](benchmarks/assembly-validation-20261017.json)保留完整条件。
 
-[公开脚本组装验收](benchmarks/assembly-validation-20261017.json)使用独立的约1.23M-token共享KV池。热缓存命中16,128 token，首个思考或文本增量为2.07–2.08秒。真实Claude Code第一轮完成Read工具调用及回答，速度136 token/s，正文在37.68秒开始。完整运行条件见链接记录。
+归档配置提供 **1,048,576-token 单请求上限**和**五个请求槽位**，共用约 **1.32M-token GPU KV 池**。表中性能对应实际测量的工作负载，长上下文评测列入后续计划。
 
-**标题成绩对应18,649个实际输入token和热前缀缓存。** 归档启动器配置1,048,576-token单请求上限与五个请求槽位，共享约1.32M-token GPU KV池。更长上下文和多客户端的测量列入后续复现计划。
+## 部署配置
 
-## 为什么保留这组配置
+| 组件 | 选定配置 |
+| --- | --- |
+| 硬件 | 2 × RTX 3090 24 GB，无 NVLink，CUDA peer access 不可用 |
+| 运行库 | 官方 vLLM 0.30.0+cu129 wheel，原样应用九个 HyperQwen 公开补丁 |
+| 目标模型 | 去拒绝版本，AWQ4 主体，INT8 embedding 与输出头 |
+| 草稿模型 | DFlash2 W4A16，7 个投机 token，关闭 lookup |
+| 缓存与状态精度 | 目标 KV 为 INT4，草稿 KV 为 BF16，循环状态为 FP16 |
+| 执行方式 | TP2、分块 prefill、GPU 前缀缓存，CPU 模型卸载为 0 |
+| 持久化缓存 | 上游 LMCache 磁盘存储，保存与回载使用主机内存暂存 |
 
-长历史实测逐步明确了需要检查什么。早期vLLM W4A8 PP2的初期prefill窗口达到3437 token/s，但真实520k输入末段的批次速度中位数降到363。后续轮次原生前缀命中约99.8%，decode仍为18至19 token/s。这些成绩属于早期配置。
+[性能评测报告](docs/exploration.zh-CN.md)整理了 llama.cpp、SGLang 和 vLLM 的配置选择过程，涵盖 TP/PP、动态分块、MTP/DFlash、量化精度与缓存持久化。[数据档案](benchmarks/history/README.md)包含 247 份源文件摘录、41 行关键结果及[配置归属](benchmarks/history/lineage.json)。
 
-[完整决策过程](docs/exploration.zh-CN.md)保留了SGLang并行方式观测、原生动态分块校准失败、投机与精度尝试，以及历史内核分支的同请求对照。最终回到原生DFlash2与九个原样公开补丁，用其自身的重复测量和归档恢复记录验证。早期自改内核的成绩另行标明；不同框架的测试条件存在差异，不据此宣称框架整体加速倍数。
-
-![最终双卡配置的完整探索决策路线](docs/figures/decision-trail.png)
-
-## 技术栈
-
-- vLLM **0.30.0+cu129** 完整官方 wheel，加 **9 个原样应用的 HyperQwen 公开补丁**。
-- 原生 DFlash2，7 个投机 token，standard 拒绝采样；关闭 lookup drafting。
-- 目标主体 AWQ4，embedding 和 `lm_head` INT8，草稿 W4A16，目标 KV INT4，草稿 KV BF16。
-- 双卡张量并行、分块 prefill、GPU 前缀缓存、上游 LMCache 磁盘存储。
-- 原生 Anthropic 接口，附带兼容文本、图片和工具内容的 Claude 聊天模板。
-- 模型推理在 GPU，`--cpu-offload-gb 0`。磁盘 KV 保存和回载经过主机内存暂存。
-
-推理算法与内核来自 [vLLM](https://github.com/vllm-project/vllm)、[HyperQwen](https://github.com/syv-ai/HyperQwen)、[DFlash](https://github.com/z-lab/dflash) 和 [LMCache](https://github.com/LMCache/LMCache)。[上游署名](THIRD_PARTY.md)记录具体来源。
+![双卡评测概览](docs/figures/decision-trail.png)
 
 ## 快速开始
 
-实测环境为 Linux、两张 24 GB RTX 3090、兼容的 CUDA 12.9 用户态环境，每卡约占 23.3 GiB。**先阅读[环境安装说明](docs/setup.zh-CN.md)**。原环境复用了已有依赖，尚未完成干净机器的从零安装验收。
+实测部署使用 Linux、两张 24 GB RTX 3090 和 CUDA 12.9 用户态环境，每卡约占 23.3 GiB。[环境配置](docs/setup.zh-CN.md)介绍驱动兼容性、已有 Python 环境复用和中国镜像。当前部署已通过复用依赖的验收，干净主机安装列入复现计划。
 
 ```bash
 git clone https://github.com/YYTbit/qwen3.8-27b-3090.git
 cd qwen3.8-27b-3090
 ```
 
-### 1. 下载固定版本的模型
+### 模型下载
 
-可以复用兼容的已有 Python 环境。Hugging Face 下载优先使用中国镜像。
+下载固定版本的目标模型与草稿模型，使用 `HF_ENDPOINT` 指定中国镜像。
 
 ```bash
 export HF_ENDPOINT=https://hf-mirror.com
@@ -66,9 +67,9 @@ hf download syvai/Qwen3.8-27B-DFlash2-W4A16 \
   --revision 4d30ec736ffc6b8688dc2ae2b502d9b48bdec279 --local-dir weights/draft
 ```
 
-### 2. 单独准备权重和运行库
+### 权重与运行库准备
 
-以下命令使用兼容环境中的 Python。模型脚本先复制源模型，再调用上游 CPU 量化脚本；需要预留新权重及量化备份的磁盘空间。
+使用兼容环境中的 Python 执行以下命令。模型准备脚本复制源权重，再调用上游 CPU 量化脚本；需要为新权重与量化备份预留磁盘空间。
 
 ```bash
 python scripts/prepare_model.py --source weights/base --output weights/target-head8
@@ -77,11 +78,9 @@ python scripts/prepare_runtime.py \
   --output runtime/tp2
 ```
 
-[wheel 来源](configs/wheel-source.json)固定官方地址和 SHA256。运行库脚本校验 wheel、补丁摘要，在新目录中按顺序应用，`fuzz=0`。
+构建脚本校验固定的 [wheel](configs/wheel-source.json) 与补丁摘要，在独立目录中按顺序应用补丁，`fuzz=0`。[权重审计](benchmarks/preparation-audit.json)记录所有非 MTP 张量的形状、精度和原始字节摘要一致性。DFlash2 权重省略三个辅助 MTP 草稿输出头张量。
 
-[模型准备核对](benchmarks/preparation-audit.json)确认所有非 MTP 张量与实测模型一致。省略的三个辅助 MTP 草稿输出头张量不参与 DFlash2，已验收范围以审计记录为准。
-
-### 3. 启动模型
+### 服务启动
 
 ```bash
 python scripts/serve.py --runtime runtime/tp2 \
@@ -89,13 +88,13 @@ python scripts/serve.py --runtime runtime/tp2 \
   --work-dir .local --gpus 0,1 --port 8000
 ```
 
-保持此进程运行。首次启动编译内核和计算图可能需要几分钟，看到 `Application startup complete` 后再连接。API 监听 `127.0.0.1:8000`，随机密钥保存在 `.local/api-key`，磁盘 KV 放在 `.local/kv-cache`。`Ctrl+C` 停止推理服务及其缓存进程，磁盘上的权重与缓存保留。
+服务在前台运行，监听 `127.0.0.1:8000`。首次内核与计算图编译可能需要数分钟，出现 `Application startup complete` 后即可连接。本地密钥保存在 `.local/api-key`，持久化 KV 位于 `.local/kv-cache`。`Ctrl+C` 释放服务占用的显存，磁盘权重和缓存继续保留。
 
-便携启动器固定使用**每卡10.5 GiB KV预算**，为工作区保留余量。归档测速配置采用0.94显存比例自动分配，原参数仍保留在启动模板中。两者均保留1M长度和五槽位，共享池容量有所不同，可用`--kv-cache-gib`调节便携预算。
+便携启动器采用**每卡 10.5 GiB KV 预算**，共享池约 1.23M token。153 token/s 的归档配置按 0.94 显存比例自动分配，共享池较大。两者均保留 1M 上下文上限与五个槽位，可通过 `--kv-cache-gib` 调节 KV 预算。
 
-多路 CPU 主机先查看 `nvidia-smi topo -m`，可通过 `--numa-node N` 绑定合适的 NUMA 节点。实测配置关闭 P2P 和 custom all-reduce。[完整启动配置](configs/launch-template.json)可直接核对。
+多路 CPU 主机可查看 `nvidia-smi topo -m`，并按需使用 `--numa-node N`。实测配置关闭 P2P 和 custom all-reduce，详见[启动配置](configs/launch-template.json)。
 
-### 4. 连接 Claude Code
+### Claude Code 连接
 
 在另一个终端运行：
 
@@ -106,11 +105,11 @@ env -u ANTHROPIC_API_KEY \
   claude --model qwen3.8-27b-uncensor
 ```
 
-这些变量仅作用于该进程，启动器不写入 Claude Code 或 cc-switch 配置。服务与 Claude 会话独立，多个客户端可以连接同一服务。在其他工作目录使用时，将密钥改为绝对路径。Claude Code 的权限由使用者自行控制。
+连接设置限定于当前进程，保留已有 Claude Code 和 cc-switch 配置。多个客户端可以共用独立管理的推理服务。在其他目录启动时使用密钥文件的绝对路径，客户端权限仍由 Claude Code 控制。
 
-## 测试自己的工作负载
+## 性能测量
 
-将自己的 Anthropic Messages 请求保存为本地 JSON。测速脚本接受本机回环地址，仅保存用量和时间元数据，不保存提示词或回答正文。
+将 Anthropic Messages 请求保存为本地 JSON 文件，然后执行：
 
 ```bash
 python scripts/benchmark.py --request /path/to/your-request.json \
@@ -118,29 +117,29 @@ python scripts/benchmark.py --request /path/to/your-request.json \
   --ttft-limit 10 --total-limit 120 --output .local/results-five.json
 ```
 
-[测量说明](docs/measurements.md)解释冷、热缓存、逐路速度及正确性检查。原私有工作负载发布了请求摘要，不公开会话正文。
+工具接受回环地址，保存用量、计时与请求摘要，会话内容保留在本地。[测量方法](docs/measurements.md)定义冷请求、GPU 热缓存、磁盘回载、逐路吞吐和完整客户端验收的口径。
 
-## 缓存与上下文配置
+## 缓存持久化
 
-引擎运行期间，GPU前缀缓存可复用已处理前缀。LMCache将兼容的KV和状态对象保存到磁盘，卸载后可以回载。本配方向上游配置256 GiB LRU存储，未设置TTL。[缓存说明](docs/cache.md)记录命名空间、容量统计和重启行为。
+引擎运行期间，GPU 前缀缓存复用已处理内容。LMCache 将兼容的 KV 和状态对象持久化，在重启后回载。配置采用 **256 GiB LRU 磁盘存储，不设置 TTL**。缓存身份包含模型、运行库、启动配置和模板。
 
-命中取决于前缀、模型、运行库布局一致，以及对应缓存块仍存在。后续复现计划包含长上下文质量和INT4 KV评估。
-
-模型可以接收图片。本次记录的重启复用覆盖文本前缀，图片磁盘缓存与多日保留列入下一阶段验证。[缓存及排障说明](docs/cache.md)记录更多细节。
+已验证一次文本前缀的卸载与重启复用。多日保留、多模态持久化及长上下文质量列入后续计划。[缓存配置与排障](docs/cache.md)说明容量统计和命名空间细节。
 
 ## 后续计划
 
-- [x] 归档、恢复双卡配置，保留原始测量结果。
-- [x] 发布中英双语说明、补丁摘要、模型准备及本地测速工具。
-- [x] 发布双卡探索档案、结果归属和完整决策故事。
-- [ ] 在其他机器验证干净环境安装。
-- [ ] 验证长上下文、多模态持久化和多日缓存复用。
+- [x] 归档选定配置，并通过独立恢复复测。
+- [x] 发布双语部署说明、权重准备、固定补丁和测量工具。
+- [x] 发布框架评测、配置归属及可编辑图表。
+- [ ] 在干净主机验证安装。
+- [ ] 扩展长上下文与多客户端评测。
+- [ ] 验证多模态缓存持久化、多日复用及 INT4 KV 质量。
 
+## 参与贡献
 
-## 参与复现
+复现报告请提供实际上下文、输出长度、缓存状态、互联方式和逐路吞吐。详见[提交说明](CONTRIBUTING.md)和[问题反馈](https://github.com/YYTbit/qwen3.8-27b-3090/issues)。
 
-欢迎提交其他机器的复现。请附实际上下文、输出长度、缓存状态、互联方式和各路速度。[提交说明](CONTRIBUTING.md) · [Issues](https://github.com/YYTbit/qwen3.8-27b-3090/issues)
+## 许可与致谢
 
-## 许可
+[Apache-2.0](LICENSE)。模型权重单独分发，遵循各自许可。
 
-[Apache-2.0](LICENSE)。权重单独下载，遵循各自许可。[第三方署名](THIRD_PARTY.md)。
+推理算法与内核来自 [vLLM](https://github.com/vllm-project/vllm)、[HyperQwen](https://github.com/syv-ai/HyperQwen)、[DFlash](https://github.com/z-lab/dflash) 和 [LMCache](https://github.com/LMCache/LMCache)，详见[第三方署名](THIRD_PARTY.md)。

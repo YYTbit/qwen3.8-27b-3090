@@ -41,7 +41,7 @@ for x in prefill_bins:
 
 figure, axes = plt.subplots(figsize=(10.2, 5.3))
 figure.subplots_adjust(left=0.10, right=0.98, top=0.79, bottom=0.25)
-figure.text(0.10, 0.93, 'Prefill across a real 520k-token history', fontsize=16, weight='bold')
+figure.text(0.10, 0.93, 'Long-Context Prefill Scaling', fontsize=16, weight='bold')
 figure.text(0.10, 0.865, 'vLLM 0.23 W4A8 PP2 | Median completed-batch prefill rate by processed-token range', color='#475569', fontsize=10)
 axes.bar(range(len(values)), values, color=['#2563eb'] + ['#94a3b8'] * 5 + ['#0f766e'], width=0.67, zorder=3)
 axes.set_xticks(range(len(values)))
@@ -60,7 +60,7 @@ save_figure(figure, 'prefill-decay')
 layouts = summary['sglang_tp_pp']['layouts']
 figure, axes = plt.subplots(figsize=(8.8, 4.9))
 figure.subplots_adjust(left=0.11, right=0.97, top=0.77, bottom=0.25)
-figure.text(0.11, 0.92, 'Same first paper prompt, different SGLang layouts', fontsize=15, weight='bold')
+figure.text(0.11, 0.92, 'SGLang Parallelism Evaluation', fontsize=15, weight='bold')
 figure.text(0.11, 0.85, 'SGLang 0.5.19 + MTP | 5,224 input / 4,096 output tokens | One run per layout', fontsize=10, color='#475569')
 axes.barh([1, 0], [x['first_api_tokens_per_s'] for x in layouts], color=['#2563eb', '#0f766e'], height=0.5, zorder=3)
 axes.set_yticks([1, 0])
@@ -88,7 +88,7 @@ groups = [
 
 figure, axes = plt.subplots(figsize=(10.2, 5.8))
 figure.subplots_adjust(left=0.10, right=0.98, top=0.78, bottom=0.30)
-figure.text(0.10, 0.93, 'Repeated measurements of the retained profile', fontsize=16, weight='bold')
+figure.text(0.10, 0.93, 'Archive Restoration and Reconstruction', fontsize=16, weight='bold')
 figure.text(0.10, 0.86, '18,649 input / 1,024 output tokens per stream | Three observations in each group', fontsize=10, color='#475569')
 axes.axvspan(2.55, 3.45, color='#f1f5f9', zorder=0)
 axes.axvline(2.5, color='#94a3b8', linestyle='--', linewidth=1)
@@ -111,14 +111,14 @@ figure.text(0.10, 0.06, 'Sources: benchmarks/results.json, history {}, and assem
 save_figure(figure, 'restoration-runs')
 
 decision_cards = [
-    ('01 / REAL WORKLOAD', 'Start from the client', 'Resume an existing task\nImages, tools and follow-ups\nSeveral sessions, one service'),
-    ('02 / FIT AND STARTUP', 'Check the GGUF path', 'llama.cpp Q4_K_M trials\nNear-1M configured limits\nAllocation + tiny-input logs'),
-    ('03 / LONG HISTORY', 'Measure long-prefill decay', 'vLLM 0.23 W4A8 PP2\n520k prefill slowed late\nHigh hits, slow next-turn decode'),
-    ('04 / SERVING CHOICES', 'Probe layout and speculation', 'SGLang TP/PP; dynamic gate\nMTP, DFlash2 and DFlash8\nPrecision and CUDA graph modes'),
-    ('05 / LOCAL CONTROLS', 'Check matched candidates', 'Native 0.28 and 0.30 trials\nLegacy verification comparisons\nCustom branch later retired'),
-    ('06 / RETAINED PROFILE', 'Select public upstream code', 'Native vLLM + DFlash2\nNine unchanged public patches\n18.6k warm median: 153 tok/s'),
-    ('07 / RECOVERY EVIDENCE', 'Restore and reconstruct', 'Archive restores: 151 / 146\nSeparate assembly: 145 tok/s\nOne text-prefix disk reload'),
-    ('08 / REUSABLE DEPLOYMENT', 'Share a recoverable recipe', 'Several clients, one server\nDisk-prefix reuse after reload\nPinned setup + timing records'),
+    ('01 / WORKLOAD', 'Workload Definition', 'Resumed Claude Code sessions\nImage and tool content\nShared inference service'),
+    ('02 / GGUF', 'GGUF Compatibility', 'llama.cpp Q4_K_M trials\nNear-1M configured limits\nAllocation and timing records'),
+    ('03 / PREFILL', 'Long-Context Prefill', 'vLLM 0.23 W4A8 PP2\n520k context scaling\nPrefix reuse and decode'),
+    ('04 / PARALLELISM', 'Parallelism and Drafting', 'SGLang TP/PP and chunking\nMTP, DFlash2 and DFlash8\nPrecision and CUDA graphs'),
+    ('05 / VERIFICATION', 'Verification Kernels', 'Native 0.28 and 0.30 trials\nMatched kernel comparisons\nArchived experimental branch'),
+    ('06 / CONFIGURATION', 'Selected Runtime', 'Native vLLM + DFlash2\nNine unchanged public patches\n18.6k warm median: 153 tok/s'),
+    ('07 / REPRODUCIBILITY', 'Restoration Validation', 'Archive restores: 151 / 146\nSeparate assembly: 145 tok/s\nText-prefix disk recovery'),
+    ('08 / DEPLOYMENT', 'Client Integration', 'Multiple clients, one server\nPersistent prefix storage\nPinned setup and measurements'),
 ]
 positions = [(0.02 + i * 0.25, 0.51) for i in range(4)] + [(0.02 + i * 0.25, 0.15) for i in [3, 2, 1, 0]]
 figure, axes = plt.subplots(figsize=(13.4, 7.0))
@@ -126,8 +126,8 @@ figure.subplots_adjust(left=0, right=1, top=1, bottom=0)
 axes.set_xlim(0, 1)
 axes.set_ylim(0, 1)
 axes.axis('off')
-axes.text(0.025, 0.94, 'The decision trail behind the retained dual-3090 profile', fontsize=18, weight='bold')
-axes.text(0.025, 0.885, 'Fit, client behavior, long-prefill decay, speculation, correctness and restoration each changed the next experiment.', fontsize=10.5, color='#475569')
+axes.text(0.025, 0.94, 'Dual-GPU Evaluation Overview', fontsize=18, weight='bold')
+axes.text(0.025, 0.885, 'Engine compatibility, context scaling, speculative decoding and deployment validation', fontsize=10.5, color='#475569')
 for i, ((x, y), (tag, title, body)) in enumerate(zip(positions, decision_cards)):
     background, border = ('#f8fafc', '#cbd5e1')
     if i == 5:

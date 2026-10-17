@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-17T05:47:57.715968+00:00",
+  "checked_at": "2026-10-17T06:21:22.623437+00:00",
   "scope": "Dual-GPU publication data, attribution and static source review; no new inference requests were run.",
   "source_files_checked": 247,
   "all_original_source_digests_match": true,
@@ -24,6 +24,5 @@
   "editable_presentation_slides": 4,
   "presentation_embedded_raster_images": 0,
   "exact_private_workload_public_replay_available": false,
-  "errors": [],
-  "renaming_baseline_commit": "f259f5c989ef43a5971c9b77c532e8e48f2d6a12"
+  "errors": []
 }

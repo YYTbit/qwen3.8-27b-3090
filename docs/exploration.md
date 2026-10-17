@@ -1,60 +1,60 @@
-# How we selected the dual-3090 recipe
+# Dual-GPU Performance Evaluation
 
 **English | [简体中文](exploration.zh-CN.md)**
 
-The starting problem was practical: return to a long Claude Code conversation, send a message, and get useful work done on local GPUs. A loaded model and a large configured context window did not establish that the next turn would be fast. Images, tool results, speculative decoding, cache reloads and several simultaneous clients each exposed a different part of the serving path.
+This report evaluates Qwen3.8-27B serving configurations on two RTX 3090 GPUs for Claude Code workloads. The evaluation covers llama.cpp, SGLang, and vLLM, with measurements of prefill scaling, parallelism, speculative decoding, cache persistence, and concurrent serving.
 
-The retained recipe is vLLM 0.30 native DFlash2 with nine unchanged public HyperQwen patches. Its headline is **153 token/s median on one warm 18,649-token history**, with independent restoration medians of **151** and **146**. The public-script reconstruction reached **145** under a different KV budget. These numbers describe specific profiles and workloads. Long-context and multi-client validation continues from this retained baseline.
+The selected configuration combines **vLLM 0.30, native DFlash2, and nine unchanged public HyperQwen patches**. At 18,649 input tokens with a warm prefix, it achieved **152.97 token/s median decode**. Two independent archive restorations achieved **150.77** and **145.50 token/s**; a separate public-script reconstruction achieved **144.66 token/s**.
 
-This report follows the decisions that led there. [The data archive](../benchmarks/history/README.md) contains 247 surviving source artifacts across eight campaigns, 236 distinct original SHA256 digests, and 41 curated CSV rows. Nested stages and summary reports overlap; these are artifact counts, not 247 independent experiments.
+![Dual-GPU evaluation overview](figures/decision-trail.png)
 
-![Decision trail linking client requirements, engine trials and restoration evidence](figures/decision-trail.png)
+## Evaluation Setup
 
-## 1. Match every result to its configuration
+The host has two 24 GB RTX 3090s without NVLink or CUDA peer access. Workloads include real Claude Code conversations, tool calls, and replayed Anthropic requests. Cache state, actual context length, precision, and output limits are recorded for each result family.
 
-The [result lineage](../benchmarks/history/lineage.json) maps each result family to its runtime, precision and role. A shared model or engine name is insufficient to transfer a result to the selected profile.
+The [evaluation archive](../benchmarks/history/README.md) contains 247 source artifacts across eight campaigns, 236 distinct original SHA256 digests, and 41 curated CSV rows. Artifact counts include overlapping summaries and nested reports. Private conversation content is excluded; request fingerprints and measurement metadata are retained.
 
-| Result family | Actual setup | Role in the decision | Selected recipe result? |
-| --- | --- | --- | --- |
-| Early llama.cpp | GGUF Q4_K_M; optional Q4_0 MTP draft; incomplete launch recovery | Allocation and tiny-input diagnostics | No |
-| SGLang TP/PP | 0.5.19 cu129, AWQ W4A16, MTP; PP2 FP8 KV and compatibility adaptations, partial TP2 launch recovery | Same-prompt observations and client integration | No |
-| SGLang native dynamic chunking | PP2, native calibration enabled | Startup/calibration failure | No measured inference rate |
-| vLLM W4A8 long history | 0.23 cu129, PP2, no speculation | Completed 520k history, chunk sizes and prefill decay | No |
-| Earlier vLLM MTP/DFlash | 0.23/0.28 and experimental 0.30 branches | Speculation, precision, CUDA graph and actual-client exploration | No |
-| Local shared-verification kernels | Experimental native 0.30 KVarN branch | Matched controls; subsequently retired | No |
-| Official packed/MQ3D/W4A8 candidates | Native 0.30, differing complete profiles | Profile selection | No |
-| **Retained TP2 profile** | **Native 0.30 + nine public patches, batch 7167, block 1792** | **Repeated 18.6k warm measurements and archive restoration** | **Yes** |
-| Public-script reconstruction | Same public algorithms; fixed 10.5 GiB KV/card | Rebuild validation and thermal boundary | Separate assembly result |
+| Evaluation group | Configuration | Evaluation scope |
+| --- | --- | --- |
+| llama.cpp | GGUF Q4_K_M; optional Q4_0 MTP draft | Allocation and short-input diagnostics |
+| SGLang TP/PP | 0.5.19 cu129, AWQ W4A16, MTP | Same-prompt observations and client integration |
+| SGLang dynamic chunking | PP2 with native calibration | Calibration and startup compatibility |
+| vLLM long-context prefill | 0.23 cu129, W4A8, PP2, speculation disabled | Completed 520k history and chunk-size evaluation |
+| vLLM MTP/DFlash | 0.23/0.28 and early 0.30 branches | Draft length, precision, graph modes, and client completion |
+| Verification kernel experiments | Historical native 0.30 branch | Matched controls; archived experimental branch |
+| Public runtime candidates | Native 0.30, packed INT4/MQ3D/W4A8 variants | Complete-profile selection |
+| **Selected configuration** | **Native 0.30, nine public patches, batch 7167, block 1792** | **Warm replay and independent restoration** |
+| Public-script reconstruction | Same public algorithms; 10.5 GiB KV/card | Checkpoint and runtime reconstruction |
 
-The target body remains 4-bit in the AWQ trials. **W4A8 means 4-bit weights and 8-bit activations.** The selected target uses an AWQ4 body with INT8 embeddings/output head, a W4A16 DFlash2 draft, INT4 target KV and BF16 draft KV. Earlier KV formats, draft formats and runtime overlays differ.
+The selected target uses an AWQ4 body, INT8 embeddings/output head, INT4 target KV, BF16 draft KV, and FP16 recurrent state. Its DFlash2 draft uses W4A16. In earlier W4A8 trials, weights remain 4-bit and activations use 8-bit precision. [Configuration lineage](../benchmarks/history/lineage.json) records these distinctions.
 
-## 2. First make the model fit and the client work
+## Engine Compatibility
 
-Six surviving llama.cpp logs cover the early Q4_K_M/near-1M configuration. Four ended with model-loading/allocation failures. A no-MTP trial recorded **41.51 token/s on 21 prompt tokens and 128 outputs**. An MTP trial recorded **17.23 token/s** on the same token counts, with reported draft acceptance 0.921 and mean emitted length 2.82.
+Six llama.cpp logs cover early Q4_K_M trials with near-1M configured context limits. Four record loading or allocation errors. At 21 prompt tokens and 128 output tokens, the no-MTP trial reached **41.51 token/s**, while an MTP trial reached **17.23 token/s**, with reported draft acceptance of 0.921 and mean emitted length of 2.82. Recovered build and launch metadata is partial. These measurements serve as short-input diagnostics ([L001–L006](../benchmarks/history/campaigns/L.json)).
 
-The exact launch/build metadata is incomplete. These are tiny-input server timings, and the MTP log name does not prove where every draft operation executed. They establish what happened in those trials; they do not provide a matched llama.cpp-versus-vLLM speedup. See [L001–L006](../benchmarks/history/campaigns/L.json).
+Client validation covered multimodal loading, Anthropic content formats, tool execution, and multi-round completion. The selected profile completed a Read tool call and two full Claude Code rounds. [Client results](../benchmarks/results.json) are recorded separately from output-capped throughput replays.
 
-Client integration was a separate acceptance condition. The surviving records cover multimodal loading, Anthropic content handling, tool round trips and actual Claude Code turns. A high generation counter was insufficient when the client could not complete its request. The selected profile's Read-tool and two-round checks are recorded separately from capped generation measurements in [results.json](../benchmarks/results.json).
+## Long-Context Prefill
 
-## 3. A promising prefill window led to a long-context measurement
+### Chunk-Size Evaluation
 
-The October 10 vLLM 0.23 W4A8 campaign tried TP2, PP2 and different static chunk budgets on the real paper history.
+The vLLM 0.23 W4A8 campaign compared TP2, PP2, and static chunk budgets on a real paper-writing history.
 
-| Configuration | Batch-token budget | Completed tokens in sampling window | Window duration | Window prefill rate | First completed chunk |
+| Configuration | Batch-token budget | Tokens completed in window | Window duration | Window prefill rate | First completed chunk |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | TP2 | 8,192 | 15,680 | 10.071 s | 1,557 token/s | 14.87 s |
 | PP2 | 4,096 | 34,496 | 10.036 s | **3,437 token/s** | 11.81 s |
-| PP2, larger chunk | 6,272 | 31,360 | 10.042 s | 3,123 token/s | 12.92 s |
+| PP2 | 6,272 | 31,360 | 10.042 s | 3,123 token/s | 12.92 s |
 
-These windows start after the first completed chunk. They are not end-to-end time to first token, and they are not the speed of processing all 520k tokens. The early PP result justified continuing that configuration at the time. It did not establish that PP would win decode or every later configuration.
+Sampling windows begin after the first completed chunk. Under these conditions, PP2 with a 4,096-token budget produced the highest early-window rate and was selected for the completed long-history evaluation.
 
-The completed **520,761-token** run exposed the next problem:
+### Context Scaling
 
-![Prefill decay across the actual 520k input](figures/prefill-decay.png)
+The completed request contained **520,761 input tokens**. Median completed-batch prefill rates decreased from **2,449 token/s** in the first 100k-token range to **363 token/s** in the final range.
 
-The first batch is excluded from this median analysis. This statistic differs from the earlier 3,437 token/s window. End-to-end cold prefill averaged **654 token/s** and client-visible first token took **797.10 s**. Sources: `S038` and `S036` in [campaign S](../benchmarks/history/campaigns/S.json).
+![Prefill scaling across a 520k-token input](figures/prefill-decay.png)
 
-The next two turns also show why cache hits and decode need separate acceptance:
+The plot excludes the first batch and groups completed-batch rates by processed-token range. The earlier 3,437 token/s value uses a separate window statistic. End-to-end cold prefill averaged **654 token/s**, with a client-visible first token at **797.10 s**. Sources: `S038` and `S036` in [campaign S](../benchmarks/history/campaigns/S.json).
 
 | Turn | Actual input | Engine cached tokens | Prefix hit rate | Client first token | Decode |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -62,107 +62,101 @@ The next two turns also show why cache hits and decode need separate acceptance:
 | Follow-up 1 | 523,234 | 522,144 | 99.79% | 12.91 s | 18.38 token/s |
 | Follow-up 2 | 525,005 | 523,712 | 99.75% | 14.07 s | 18.79 token/s |
 
-These are **vLLM W4A8 PP2 without speculation**, not SGLang or the final DFlash2 profile. Engine hits were observed, while that Anthropic adapter still reported zero cache tokens. This established same-engine prefix reuse for that old configuration; restart persistence and multi-day retention were not verified.
+These measurements describe the historical **W4A8 PP2 configuration with speculation disabled**. Prefix reuse reduced follow-up latency, while long-context decode remained a separate performance constraint. Cache hits were confirmed by the engine; the historical Anthropic adapter reported zero cache tokens in its usage fields.
 
-## 4. Test PP, TP and dynamic chunking separately
+## Parallelism and Dynamic Chunking
 
-SGLang's native dynamic chunking was enabled in a dedicated PP2 trial. Its calibration produced a negative fitted quadratic coefficient after 128 samples and failed **before the real request**. There is no measured dynamic-chunking prefill or decode rate to report (`S013`).
+SGLang native dynamic chunking was evaluated with PP2. Calibration fitted a negative quadratic coefficient after 128 samples and terminated before request execution (`S013`). A separate static PP2 gate processed 16,384 tokens in a 10.025 s observation window, approximately **1,634 token/s**, before cancellation. Its summary inherited a dynamic-chunking flag that was absent from the launch arguments; [recovered configuration records](../benchmarks/history/configurations.json) identify it as static chunking.
 
-Another PP launch summary inherited a `native_dynamic_chunking=true` field even though its actual arguments omitted the enabling flag. Its performance report says false. [Recovered flags](../benchmarks/history/configurations.json) preserve that discrepancy; the curated record labels this static PP. The static long-history gate processed 16,384 tokens in approximately 10.025 s of the observation window, about 1,634 token/s, and was canceled without measuring decode.
+A later SGLang MTP evaluation used the same initial paper prompt, with **5,224 input and 4,096 output tokens** per first API phase.
 
-The later SGLang MTP layout control used the same first paper prompt, **5,224 input / 4,096 output tokens**:
+![SGLang parallelism evaluation](figures/sglang-layout.png)
 
-![SGLang first-API layout control](figures/sglang-layout.png)
-
-| SGLang layout | First thinking/text delta | Whole question completed? |
-| --- | ---: | --- |
-| TP2 | 4.42 s | Yes, after continuation |
-| PP2 | 5.51 s | Yes, after continuation |
-
-Dynamic chunking was disabled in this decode test. The historical PP branch included upstream backports and compatibility adaptations; its recovered launch specifies FP8 E5M2 KV and a 65,536 context limit. Complete TP2 launch recovery is unavailable. Each layout has one first-phase observation, and later continuation contexts diverge. This is a same-prompt observation, with other configuration effects unresolved. Source `S016` retains both API phases and their metric definition.
-
-**Chunked prefill, static chunk-size tuning and native dynamic chunk calibration are three distinct records in this exploration.** Enabling a flag is not evidence of a faster real workload.
-
-## 5. Speculation required precision, graph and correctness checks
-
-Earlier vLLM 0.23 short Claude Code questions covered MTP proposal lengths, greedy/probabilistic drafting, attention backends, graph modes, recurrent-state precision and DFlash2/8.
-
-| Historical candidate | Actual first-API input | First-API decode | Outcome |
+| Layout | First-phase decode | First thinking/text delta | Client completion |
 | --- | ---: | ---: | --- |
-| MTP1, FlashInfer, FP8 KV, greedy draft | 5,199 | 24.49 token/s | Turn incomplete; requested full-decode graph mode fell back |
-| MTP3, Triton INT8 KV, greedy draft | 5,199 | 42.66 token/s | Turn completed |
-| MTP3, Triton INT8 KV, probabilistic draft | 5,203 | 59.47 token/s | Turn completed |
-| MTP5, Triton INT8 KV, greedy draft | 5,199 | 42.71 token/s | Turn completed after additional continuation |
-| Earlier DFlash2 + INT8-head preparation | 5,204 | 80.57 token/s | Turn completed |
-| DFlash2 with FP16 recurrent state, October 15 | 5,175 | 82.23 token/s | Turn completed |
+| TP2 | **49.57 token/s** | 4.42 s | Complete, with continuation |
+| PP2 | 28.97 token/s | 5.51 s | Complete, with continuation |
 
-The inputs, precision, draft integration and generated continuations differ, so this is an exploration matrix. A matched speedup is not computed from its rows. DFlash8 and some W4A8 candidates produced no completed API phase and are retained as incomplete attempts. Full records are in [summary.json](../benchmarks/history/summary.json) and campaigns [S](../benchmarks/history/campaigns/S.json)/[P](../benchmarks/history/campaigns/P.json).
+Dynamic chunking was disabled for these measurements. The recovered PP2 launch used AWQ W4A16, FP8 E5M2 KV, a 65,536-token limit, and historical backports with compatibility adaptations. TP2 launch metadata is partial. The figure therefore reports one observation per layout under their recorded configurations; continuation contexts subsequently diverged. Source `S016` retains all API phases and timing definitions.
 
-The native 0.28/0.30 client campaigns subsequently crossed 100 token/s on short paper questions, and exercised longer actual-client turns. Their contexts changed between rounds. A recorded **89.97 token/s** turn reached **37,208 context tokens**; it was not a 120k-token decode result.
+## Speculative Decoding
 
-### The historical custom-kernel branch
+### Draft and Precision Evaluation
 
-One earlier native 0.30 branch also tried locally authored shared-verification kernels. The same 18,649-token request produced these medians:
+The initial vLLM 0.23 campaign evaluated MTP proposal lengths, greedy and probabilistic drafting, attention backends, graph modes, recurrent-state precision, and DFlash variants.
+
+| Candidate | First-phase input | First-phase decode | Client outcome |
+| --- | ---: | ---: | --- |
+| MTP1, FlashInfer, FP8 KV, greedy draft | 5,199 | 24.49 token/s | Incomplete; graph fallback observed |
+| MTP3, Triton INT8 KV, greedy draft | 5,199 | 42.66 token/s | Complete |
+| MTP3, Triton INT8 KV, probabilistic draft | 5,203 | 59.47 token/s | Complete |
+| MTP5, Triton INT8 KV, greedy draft | 5,199 | 42.71 token/s | Complete, with continuation |
+| DFlash2 with INT8 heads | 5,204 | 80.57 token/s | Complete |
+| DFlash2 with FP16 recurrent state, October 15 | 5,175 | 82.23 token/s | Complete |
+
+This matrix records complete candidate configurations, with differences in input, precision, and draft integration. DFlash8 and several W4A8 candidates terminated before a completed API phase. Full records are available in [summary.json](../benchmarks/history/summary.json) and campaigns [S](../benchmarks/history/campaigns/S.json) and [P](../benchmarks/history/campaigns/P.json).
+
+Subsequent native 0.28/0.30 client campaigns exceeded 100 token/s on short paper questions and extended testing to longer conversations. The archived **89.97 token/s** observation used **37,208 context tokens**.
+
+### Verification Kernel Experiments
+
+A historical native 0.30 branch evaluated shared-verification kernels with matched 18,649-token requests.
 
 | Historical configuration | Runs | Median decode | Median step time |
 | --- | ---: | ---: | ---: |
-| Original lookup-enabled profile | 3 | 123.14 token/s | 24.83 ms |
+| Lookup enabled | 3 | 123.14 token/s | 24.83 ms |
 | Lookup disabled | 3 | 135.13 token/s | 24.89 ms |
-| Lookup disabled, forced NCCL LL | 3 | 134.11 token/s | 25.01 ms |
-| First shared-verification candidate | 3 | 147.87 token/s | 23.51 ms |
-| Six-run shared confirmation | 6 | 140.84 token/s | 24.56 ms |
+| Lookup disabled, NCCL LL | 3 | 134.11 token/s | 25.01 ms |
+| Initial shared verification | 3 | 147.87 token/s | 23.51 ms |
+| Shared verification confirmation | 6 | 140.84 token/s | 24.56 ms |
 | Shared verification, eight warps | 4 | 141.70 token/s | 23.75 ms |
 
-The first three eight-warp outputs matched their lookup-disabled references exactly, with about 4.7–4.9% paired rate increases; a greedy 512-token check also matched. A different shared candidate had output differences, and a peak of 164 token/s did not establish a better accepted profile. These controls are in `D001`.
+The first three eight-warp outputs matched the lookup-disabled references, with paired throughput increases of approximately 4.7–4.9%. A greedy 512-token check also matched. Another candidate produced output differences; correctness records are retained in `D001`.
 
-**This locally authored kernel is retired. It is absent from the selected public recipe.** Its complete Claude turns at 153.56/150.03 token/s and its 120k decode at 75.34 belong to that historical branch. They must not be credited to the final public-patch profile.
+This experimental branch is archived separately from the selected public-patch runtime. Its complete Claude Code rates of 153.56/150.03 token/s and its 120k-context rate of 75.34 token/s retain that branch attribution.
 
-## 6. Select a public profile, then verify that it can be restored
+## Runtime Configuration
 
-The next campaign returned to the complete official vLLM 0.30 wheel and public HyperQwen patch sequence. Its measured whole-profile candidates included official packed INT4, an MQ3D subset, W4A8 activations and the retained W4A16 profile.
+The final selection used the complete official vLLM 0.30 wheel and public HyperQwen patch sequence. Candidate configurations covered packed INT4, an MQ3D subset, W4A8 activations, and W4A16 drafting.
 
-| Native 0.30 whole-profile trial | Cache / output conditions | Measured decode | Interpretation |
+| Runtime candidate | Cache and measurement conditions | Decode | Selection status |
 | --- | --- | ---: | --- |
-| Official packed INT4, cold | 18,649 input, 1,024 output, profiling enabled | 32.73 token/s | Baseline complete profile |
-| Official packed INT4, warm | 16,128 cache hits, 1,024 output, profiling enabled | 24.10 token/s | Baseline warm observation |
-| Public MQ3D subset, warm | Same source history, 1,024 outputs, profiling enabled | 58.84 / 92.21 token/s | Two candidate observations |
-| W4A8-activation candidate, warm | Same source history, 16,128 hits, 1,024 outputs | 139.24 / 133.91 / 123.32 | Rejected as the default |
-| Earlier public W4A16, batch 3583 | Same source history, three warm 1,024 outputs | Median 149.18 | Earlier retained candidate |
-| **Public W4A16, batch 7167** | **17,920 hits, three 1,024 outputs** | **Median 152.97** | **Archived selection** |
+| Packed INT4, cold | 18,649 input; 1,024 output; profiling enabled | 32.73 token/s | Baseline |
+| Packed INT4, warm | 16,128 cache hits; 1,024 output; profiling enabled | 24.10 token/s | Baseline |
+| MQ3D patch subset, warm | Same source history; 1,024 output; profiling enabled | 58.84 / 92.21 token/s | Candidate |
+| W4A8 activations, warm | Same source history; 16,128 hits; 1,024 output | 139.24 / 133.91 / 123.32 token/s | Candidate |
+| W4A16, batch 3583 | Same source history; three warm 1,024-token outputs | Median 149.18 token/s | Earlier configuration |
+| **W4A16, batch 7167** | **17,920 hits; three 1,024-token outputs** | **Median 152.97 token/s** | **Selected** |
 
-These are different complete profiles, including draft/precision, patch set, cache and profiling conditions. The table records whole-profile selection; component effects have their own controls.
+Each row represents a complete runtime profile. Draft precision, patch selection, cache state, and profiling conditions are recorded in the archive. Component-level effects are documented by their corresponding controls.
 
-The archived selection used seven native DFlash2 speculative tokens, standard rejection, lookup disabled, FP16 recurrent state, GPU prefix caching and upstream LMCache. There are nine unchanged public patches and zero locally authored inference kernels in this profile. The [patch/runtime audit](../benchmarks/runtime-audit.json), [checkpoint audit](../benchmarks/preparation-audit.json), pinned launch and public preparation scripts record its identity.
+The selected profile uses seven native DFlash2 speculative tokens, standard rejection sampling, lookup disabled, FP16 recurrent state, GPU prefix caching, and upstream LMCache. All nine patches are unchanged public upstream patches. The [runtime audit](../benchmarks/runtime-audit.json), [checkpoint audit](../benchmarks/preparation-audit.json), and [launch profile](../configs/launch-template.json) identify the published configuration.
 
-![Every warm observation in the original archive, two restorations and the separate assembly](figures/restoration-runs.png)
+## Reproducibility and Cache Persistence
 
-| Selected-profile evidence | Median warm decode | What was checked |
+![Archive restoration and reconstruction measurements](figures/restoration-runs.png)
+
+| Evaluation | Median warm decode | Conditions |
 | --- | ---: | --- |
-| Original archive | **152.97 token/s** | 18,649 input; 17,920 hits; 1,024 output each |
-| Independent restoration | **150.77 token/s** | Archive restored and request replayed |
-| Later restoration | **145.50 token/s** | Second independent recovery session |
-| Public-script assembly | **144.66 token/s** | Separate rebuilt runtime/checkpoint, reused dependencies; 10.5 GiB KV/card |
+| Original archive | **152.97 token/s** | 18,649 input; 17,920 cache hits; three 1,024-token outputs |
+| Archive restoration 1 | **150.77 token/s** | Same request replayed after restoration |
+| Archive restoration 2 | **145.50 token/s** | Second independent recovery session |
+| Public-script reconstruction | **144.66 token/s** | Rebuilt checkpoint/runtime; reused dependencies; 10.5 GiB KV/card |
 
-The assembly is a separate configuration with 16,128 hits and a smaller shared KV pool. It is not an additional identical-profile replicate. The capped runs include reasoning and stop before answer text. Complete actual-client checks and first-answer latency remain separate in [measurement notes](measurements.md).
+The figure includes all twelve observations, with three runs per group. The reconstruction used 16,128 cache hits and a smaller shared KV pool, and is reported as a separate configuration. Capped throughput runs include reasoning; complete answers and first-answer latency are documented in the [measurement guide](measurements.md).
 
-The figure shows all twelve observations. Individual values remain in the linked JSON, with three observations per group.
+A separate unload/restart recovered **16,128 text-prefix tokens from disk**, with zero GPU prefix hits. The first thinking/text delta arrived at **2.15 s**, and that run decoded at **161.83 token/s**. [Cache documentation](cache.md) describes namespace identity, storage capacity, and retention settings.
 
-One actual unload/restart recovered **16,128 text-prefix tokens from external cache**, with zero GPU prefix hits, first thinking/text at **2.15 s**, and decode at **161.83 token/s**. This is a separately recorded restart observation. See [cache behavior](cache.md).
+## Concurrent Serving
 
-## 7. Validate several real clients
+The selected TP2 profile observed **five running replay requests**, with **56.47–69.04 token/s per stream**. Four requests emitted 1,024 tokens; one emitted 311 tokens before requesting a tool. The requests shared a conversation prefix.
 
-The historical five-client Claude Code campaign observed all five generating. Four completed two rounds, while one reached the experiment deadline. Four ten-second all-five windows totaled **234.9–258.4 token/s**. These are aggregate generation windows.
+An earlier five-client Claude Code campaign also observed all five generating. Four clients completed two rounds, and one reached the experiment deadline. Four ten-second windows with all five active produced **234.9–258.4 token/s aggregate throughput**. These aggregate windows and the selected profile's per-stream results have separate records in the [archive](../benchmarks/history/summary.json).
 
-The selected public TP2 profile's separate five-request replay observed five running, with **56.47–69.04 token/s per stream**. Four requests emitted 1,024 tokens and one stopped for a tool after 311. The [archived conditions](../benchmarks/history/summary.json) identify the shared history, output lengths and running-request observations.
+Additional historical evaluations covered sub-block alignment, larger prefill buffers, and multiple API-server processes for long-history admission. Their configuration identities and request conditions are preserved in the campaign data.
 
-Historical sub-block alignment, larger prefill buffers and five API-server processes also explored long-history admission. Their exact request conditions and timings remain in the experiment data. These branches retain their own configuration identities.
+## Summary
 
-## 8. What this exploration supports
+The published configuration provides a measured dual-3090 deployment with approximately **150 token/s warm single-stream decode**, independent restoration evidence, Claude Code integration, and verified text-prefix recovery after restart. Its launcher supports a 1M per-request context limit and five slots backed by a shared GPU KV pool of approximately 1.32M tokens. Further evaluation covers longer actual inputs, concurrent conversations, multi-day cache retention, and long-context quality.
 
-The useful result is a pinned, restored local profile and the evidence explaining its selection. The data distinguish fit from speed, early prefill from late prefill, draft acceptance from end-to-end decode, configured slots from running clients, and cache hits from usable next-turn latency.
-
-For this host, the retained public TP2 profile is the recommended **18.6k warm interactive configuration**. The configured 1M limit and five slots use a shared pool of roughly 1.32M tokens. Additional long-context, multi-client and multi-day cache measurements are the next validation steps.
-
-The algorithms belong to [vLLM](https://github.com/vllm-project/vllm), [HyperQwen](https://github.com/syv-ai/HyperQwen), [DFlash](https://github.com/z-lab/dflash) and [LMCache](https://github.com/LMCache/LMCache), with earlier experiments using [SGLang](https://github.com/sgl-project/sglang) and [llama.cpp](https://github.com/ggml-org/llama.cpp). This repository contributes the host-specific selection, reconstruction, integration and documented measurements. Private prompts are excluded, so the archive is not an exact public replay or a general model-quality benchmark.
-
-**Next:** preserve the restored TP2 profile, gather reproductions on other dual-3090 hosts, and extend long-context and cache-reuse measurements. Reproductions with actual context, cache state, topology and each stream's rate are welcome through the [reporting guide](../CONTRIBUTING.md).
+Inference implementations come from [vLLM](https://github.com/vllm-project/vllm), [HyperQwen](https://github.com/syv-ai/HyperQwen), [DFlash](https://github.com/z-lab/dflash), and [LMCache](https://github.com/LMCache/LMCache); earlier evaluations used [SGLang](https://github.com/sgl-project/sglang) and [llama.cpp](https://github.com/ggml-org/llama.cpp). This repository provides the deployment configuration, reconstruction scripts, client integration, and measurement archive. See the [contribution guide](../CONTRIBUTING.md) for reproduction reports.

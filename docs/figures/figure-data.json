@@ -1,44 +1,44 @@
 {
   "decision_cards": [
     [
-      "01 / REAL WORKLOAD",
-      "Start from the client",
-      "Resume an existing task\nImages, tools and follow-ups\nSeveral sessions, one service"
+      "01 / WORKLOAD",
+      "Workload Definition",
+      "Resumed Claude Code sessions\nImage and tool content\nShared inference service"
     ],
     [
-      "02 / FIT AND STARTUP",
-      "Check the GGUF path",
-      "llama.cpp Q4_K_M trials\nNear-1M configured limits\nAllocation + tiny-input logs"
+      "02 / GGUF",
+      "GGUF Compatibility",
+      "llama.cpp Q4_K_M trials\nNear-1M configured limits\nAllocation and timing records"
     ],
     [
-      "03 / LONG HISTORY",
-      "Measure long-prefill decay",
-      "vLLM 0.23 W4A8 PP2\n520k prefill slowed late\nHigh hits, slow next-turn decode"
+      "03 / PREFILL",
+      "Long-Context Prefill",
+      "vLLM 0.23 W4A8 PP2\n520k context scaling\nPrefix reuse and decode"
     ],
     [
-      "04 / SERVING CHOICES",
-      "Probe layout and speculation",
-      "SGLang TP/PP; dynamic gate\nMTP, DFlash2 and DFlash8\nPrecision and CUDA graph modes"
+      "04 / PARALLELISM",
+      "Parallelism and Drafting",
+      "SGLang TP/PP and chunking\nMTP, DFlash2 and DFlash8\nPrecision and CUDA graphs"
     ],
     [
-      "05 / LOCAL CONTROLS",
-      "Check matched candidates",
-      "Native 0.28 and 0.30 trials\nLegacy verification comparisons\nCustom branch later retired"
+      "05 / VERIFICATION",
+      "Verification Kernels",
+      "Native 0.28 and 0.30 trials\nMatched kernel comparisons\nArchived experimental branch"
     ],
     [
-      "06 / RETAINED PROFILE",
-      "Select public upstream code",
+      "06 / CONFIGURATION",
+      "Selected Runtime",
       "Native vLLM + DFlash2\nNine unchanged public patches\n18.6k warm median: 153 tok/s"
     ],
     [
-      "07 / RECOVERY EVIDENCE",
-      "Restore and reconstruct",
-      "Archive restores: 151 / 146\nSeparate assembly: 145 tok/s\nOne text-prefix disk reload"
+      "07 / REPRODUCIBILITY",
+      "Restoration Validation",
+      "Archive restores: 151 / 146\nSeparate assembly: 145 tok/s\nText-prefix disk recovery"
     ],
     [
-      "08 / REUSABLE DEPLOYMENT",
-      "Share a recoverable recipe",
-      "Several clients, one server\nDisk-prefix reuse after reload\nPinned setup + timing records"
+      "08 / DEPLOYMENT",
+      "Client Integration",
+      "Multiple clients, one server\nPersistent prefix storage\nPinned setup and measurements"
     ]
   ],
   "prefill": [

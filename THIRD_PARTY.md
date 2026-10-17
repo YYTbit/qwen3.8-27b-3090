@@ -1,4 +1,4 @@
-# Upstream projects
+# Third-Party Attribution
 
 This is a deployment recipe built on upstream implementations. It introduces no inference algorithm or handwritten attention kernel.
 

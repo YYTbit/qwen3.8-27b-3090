@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.3.1 (2026-10-17)
+
+- Reorganize the bilingual README around features, performance, configuration, and deployment.
+- Restructure the evaluation report by technical topic with conventional declarative headings.
+- Revise the bilingual project announcement, measurement guide, cache documentation, and dataset index.
+- Align figure and presentation titles with the report structure.
+
 ## v0.3.0 (2026-10-17)
 
 - Publish a bilingual decision trail covering llama.cpp, SGLang, vLLM, TP/PP, dynamic chunking, speculation, quantization and cache reloads.
