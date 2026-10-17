@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-10-17T05:53:02.598907+00:00",
+  "checked_at": "2026-10-17T06:24:08.113236+00:00",
   "account": "YYTbit",
-  "source_draft_commit": "6ec2611056a1d836c35b1da1df226c23b323a6fa",
+  "source_draft_commit": "7ea4cd09d36bf340b7ca53fa04dfb06bf905cbbe",
   "posts": [
     {
       "community": "club-3090",
@@ -13,15 +13,18 @@
         "English",
         "简体中文"
       ],
-      "published_body_sha256": "f89ffb5c95020074f109a2b7764388b0f4d5119069668c34e97c5236d2c21cbf",
+      "published_body_sha256": "c242005970817eedb6bdf6539ca9eac5820c8beb690bf3bb10481738c00ce38c",
       "body_readback_verified": true,
       "public_page_verified": true,
       "ai_assistance_disclosed": true,
       "initial_body_sha256": "c59e91ef3a95f686fbbb77425b7685157f02d462327c511dc119012940da0f32",
-      "updated_at": "2026-10-17T05:53:01Z",
-      "archive_update_scope": "Dual-GPU experiments, configuration lineage and bilingual decision story",
+      "updated_at": "2026-10-17T06:24:07Z",
+      "archive_update_scope": "Bilingual technical documentation and performance evaluation",
       "evidence_source_files": 247,
-      "update_uses_existing_thread": true
+      "update_uses_existing_thread": true,
+      "published_title": "Qwen3.8-27B on Dual RTX 3090s: 153 tok/s at 18.6k Warm Context",
+      "title_readback_verified": true,
+      "documentation_revision": "v0.3.1"
     }
   ],
   "pending": [
